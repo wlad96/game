@@ -33,7 +33,19 @@ function loadSai(): THREE.Object3D {
           if (!res.ok) throw new Error(`sai.glb: HTTP ${res.status}`);
           buf = await res.arrayBuffer();
         }
-        const gltf = await new GLTFLoader().parseAsync(buf, '');
+        // GLTFLoader decodes embedded textures with fetch(blob:) when
+        // createImageBitmap exists; strict CSP hosts block that. Hiding it while
+        // the parser is constructed makes it use <img> loading instead.
+        const w = window as unknown as { createImageBitmap?: typeof createImageBitmap };
+        const cib = w.createImageBitmap;
+        w.createImageBitmap = undefined;
+        let pending: Promise<{ scene: THREE.Group }>;
+        try {
+          pending = new GLTFLoader().parseAsync(buf, '');
+        } finally {
+          w.createImageBitmap = cib;
+        }
+        const gltf = await pending;
         c.scene = gltf.scene;
       })().catch((e) => {
         c.error = e;
@@ -63,28 +75,40 @@ const damp = (a: number, b: number, k: number, dt: number) => a + (b - a) * (1 -
 export function SaiGlbModel({ skin, source, riding, castShadow = true }: { skin: string; source: () => AnimSource; riding?: boolean; castShadow?: boolean }) {
   const scene = loadSai();
   const s = skinById(skin);
-  const { geometry, scale, offset } = useMemo(() => {
-    let src: THREE.BufferGeometry | null = null;
-    scene.traverse((o) => {
-      if (!src && (o as THREE.Mesh).isMesh) src = (o as THREE.Mesh).geometry;
+  const { object, scale, offset } = useMemo(() => {
+    // Textured model: keep its own PBR materials, tint them for non-classic skins.
+    // Untextured model: paint body regions per vertex (see saiColors.ts).
+    const root = scene.clone(true);
+    root.updateMatrixWorld(true);
+    root.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      mesh.castShadow = castShadow;
+      mesh.receiveShadow = true;
+      const src = mesh.material as THREE.MeshStandardMaterial;
+      if (src.map) {
+        const m = src.clone();
+        if (s.id !== 'classic') m.color = new THREE.Color(s.suit).lerp(new THREE.Color('#ffffff'), 0.25);
+        if (s.emissive) {
+          m.emissive = new THREE.Color(s.emissive);
+          m.emissiveIntensity = 0.15;
+        }
+        mesh.material = m;
+      } else {
+        mesh.geometry = paintSai(mesh.geometry, s);
+        mesh.material = new THREE.MeshStandardMaterial({
+          vertexColors: true,
+          roughness: 0.82,
+          metalness: 0.05,
+          emissive: s.emissive ?? '#000000',
+          emissiveIntensity: s.emissive ? 0.12 : 0,
+        });
+      }
     });
-    const geo = paintSai(src!, s);
-    geo.computeBoundingBox();
-    const bb = geo.boundingBox!;
+    const bb = new THREE.Box3().setFromObject(root);
     const k = HEIGHT / (bb.max.y - bb.min.y);
-    return { geometry: geo, scale: k, offset: -bb.min.y * k };
-  }, [scene, s]);
-  const material = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        vertexColors: true,
-        roughness: 0.82,
-        metalness: 0.05,
-        emissive: s.emissive ?? '#000000',
-        emissiveIntensity: s.emissive ? 0.12 : 0,
-      }),
-    [s],
-  );
+    return { object: root, scale: k, offset: -bb.min.y * k };
+  }, [scene, s, castShadow]);
   const boardMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#1b2236', metalness: 0.6, roughness: 0.3 }), []);
   const glowMat = useMemo(() => new THREE.MeshBasicMaterial({ color: '#3fe0ff', toneMapped: false }), []);
 
@@ -180,14 +204,7 @@ export function SaiGlbModel({ skin, source, riding, castShadow = true }: { skin:
   return (
     <group>
       <group ref={pivot} position={[0, HEIGHT / 2, 0]}>
-        <mesh
-          geometry={geometry}
-          material={material}
-          scale={scale}
-          position={[0, offset - HEIGHT / 2, 0]}
-          castShadow={castShadow}
-          receiveShadow
-        />
+        <primitive object={object} scale={scale} position={[0, offset - HEIGHT / 2, 0]} />
       </group>
       {riding && (
         <group position={[0, 0.18, 0]}>
