@@ -1,6 +1,6 @@
 import { Sky } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
-import { useEffect, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { play } from '../../audio/sfx';
 import { questById } from '../../data/quests';
@@ -13,6 +13,8 @@ import { Pet } from '../Pet';
 import { blockCollider, Blocks, FollowSun, matFor, setCityGlow, useWorld, type BlockDef } from '../SceneKit';
 import { Beacon, Label, Npc, Orb, Palm, QuestMarker, SaiRobot, sharedMaterials as M, Token } from '../models/props';
 import { Portal } from '../models/Portal';
+import { CityKit, placementCollider } from '../models/CityKit';
+import { buildRioCity } from './cityKit';
 import { collectibles, useInteractable, useTrigger } from '../runtime';
 import { copacabanaTexture, coreTexture, labelTexture, noiseTexture, tileTexture } from '../textures';
 import {
@@ -337,12 +339,14 @@ export default function RioCity({ spawnId }: { spawnId: string }) {
   const restored = !!flags.rioRestored;
 
   const { blocks, parkour } = useMemo(() => buildRioBlocks(), []);
+  const city = useMemo(() => buildRioCity(), []);
   const solid = useMemo<BlockDef[]>(
     () => [...blocks, ...parkour, STATION, ...STAIRS, SUMMIT_ROCK, APARTMENT, STAGE, ...CARNIVAL_WALLS],
     [blocks, parkour],
   );
   const colliders = useMemo<Box[]>(() => {
     const boxes = solid.map(blockCollider);
+    for (const p of city) if (p.solid) boxes.push(placementCollider(p));
     boxes.push(boxAt(0, 0, 7.6, 7.6, 0.8)); // fountain
     boxes.push(boxAt(0, -46, 6, 6, 4)); // tower base
     boxes.push(boxAt(-14, -8, 3, 3, 0.6)); // beacon 1
@@ -352,7 +356,7 @@ export default function RioCity({ spawnId }: { spawnId: string }) {
     for (const [x, y, z] of SUMMIT_PATH) boxes.push(boxAt(x, z, 3.4, 3.4, 0.5, y - 0.5));
     boxes.push(boxAt(40, 102, 4, 20, 0.6)); // pier
     return boxes;
-  }, [solid]);
+  }, [solid, city]);
   const bounds = useMemo(() => ({ type: 'rect' as const, ...RIO_BOUNDS }), []);
   useWorld(colliders, bounds);
 
@@ -580,6 +584,9 @@ export default function RioCity({ spawnId }: { spawnId: string }) {
       <FountainAndSquare />
       <EnergyTower restored={restored} />
       <Blocks blocks={solid} shadows={shadows} />
+      <Suspense fallback={null}>
+        <CityKit placements={city} shadows={shadows} />
+      </Suspense>
       <Backdrop />
       <Gondola />
 

@@ -120,41 +120,12 @@ export const SUMMIT_PATH: [number, number, number][] = (() => {
 })();
 export const SUMMIT: [number, number, number] = [112, 24.4, -120];
 
+/** Favela houses and parkour blocks; regular buildings come from the city kit (cityKit.ts). */
 export function buildRioBlocks(): { blocks: BlockDef[]; parkour: BlockDef[] } {
   const r = rng(2026);
   const pick = () => RIO_COLORS[Math.floor(r() * RIO_COLORS.length)];
   const blocks: BlockDef[] = [];
 
-  // Market street — two rows of colonial buildings
-  for (const side of [-1, 1]) {
-    let x = 28;
-    for (;;) {
-      const w = 7 + r() * 5;
-      if (x + w > 112) break;
-      const h = 6 + r() * 10;
-      blocks.push({ x: x + w / 2, z: side * 15, w, d: 10, h, color: pick(), kind: 'facadeLit', roof: '#c2693a' });
-      x += w + (r() < 0.25 ? 4 : 0.6);
-    }
-  }
-  // Beach avenue — high-rises facing the ocean
-  for (let x = -76; x < 140; ) {
-    const w = 10 + r() * 6;
-    if (x > -8 && x < 8) {
-      x = 10;
-      continue;
-    }
-    if (x > -46 && x < -16) {
-      x = -16;
-      continue;
-    }
-    if (x > 56 && x < 106) {
-      x = 106;
-      continue;
-    }
-    const h = 14 + r() * 22;
-    blocks.push({ x: x + w / 2, z: 54, w, d: 9, h, color: r() < 0.5 ? '#f4f1ea' : '#e8eef5', kind: 'facadeLit' });
-    x += w + 2;
-  }
   // Favela houses — dense, colourful, mostly low (some are climbable shortcuts)
   for (let i = 0; i < 70; i++) {
     const x = -140 + r() * 88;
@@ -166,22 +137,13 @@ export function buildRioBlocks(): { blocks: BlockDef[]; parkour: BlockDef[] } {
       (b) => Math.abs(b.x - x) < (b.w + w) / 2 + 2 && Math.abs(b.z - z) < (b.d + d) / 2 + 2,
     );
     if (hitsRoute) continue;
+    // never bury a collectible, secret or fast-travel point inside a house
+    const covers = (px: number, pz: number) => Math.abs(px - x) < w / 2 + 1.5 && Math.abs(pz - z) < d / 2 + 1.5;
+    if (RIO_ORBS.some(([px, , pz]) => covers(px, pz)) || RIO_FAST_TRAVEL_POINTS.some((f) => covers(f.x, f.z))) continue;
     const distWest = (-x - 50) / 90;
     const h = 2.5 + distWest * 9 * r() + r() * 2;
     blocks.push({ x, z, w, d, h, color: pick(), kind: 'facade' });
   }
-  // North skyline (backdrop, still solid)
-  for (let x = -140; x < 140; ) {
-    const w = 12 + r() * 10;
-    const h = 20 + r() * 40;
-    if (!(x > 40 && x < 150)) blocks.push({ x: x + w / 2, z: -140, w, d: 12, h, color: r() < 0.5 ? '#dfe7f2' : '#f6efe3', kind: 'facadeLit' });
-    x += w + 3;
-  }
-  // Square surroundings
-  blocks.push({ x: -20, z: -22, w: 10, d: 8, h: 9, color: '#fff3d6', kind: 'facadeLit', roof: '#c2693a' });
-  blocks.push({ x: 20, z: -22, w: 10, d: 8, h: 11, color: '#f2c14e', kind: 'facadeLit', roof: '#c2693a' });
-  blocks.push({ x: 20, z: 22, w: 10, d: 8, h: 8, color: '#4d9de0', kind: 'facadeLit', roof: '#c2693a' });
-
   return { blocks, parkour: [...FAVELA_ROUTE, SECRET_ROOF] };
 }
 

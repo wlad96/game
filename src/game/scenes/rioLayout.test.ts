@@ -46,3 +46,31 @@ describe('parkour routes are reachable', () => {
     checkRoute([station, ...plats, summit]);
   });
 });
+
+import { buildRioBlocks, RIO_ORBS, RIO_TOKENS, RIO_FAST_TRAVEL_POINTS, RIO_POIS } from './rioLayout';
+import { buildRioCity, footprint } from './cityKit';
+
+describe('city layout', () => {
+  const city = buildRioCity();
+  const solids = [
+    ...buildRioBlocks().blocks.map((b) => ({ x0: b.x - b.w / 2, x1: b.x + b.w / 2, z0: b.z - b.d / 2, z1: b.z + b.d / 2, top: (b.y ?? 0) + b.h })),
+    ...city
+      .filter((p) => p.solid)
+      .map((p) => {
+        const f = footprint(p);
+        return { x0: p.x - f.w / 2, x1: p.x + f.w / 2, z0: p.z - f.d / 2, z1: p.z + f.d / 2, top: f.h };
+      }),
+  ];
+  const buried = (x: number, y: number, z: number) => solids.some((s) => x > s.x0 - 0.5 && x < s.x1 + 0.5 && z > s.z0 - 0.5 && z < s.z1 + 0.5 && y < s.top);
+
+  it('places a real city', () => {
+    expect(city.length).toBeGreaterThan(30);
+  });
+
+  it('keeps orbs, secrets, quest points and fast travel reachable (not inside buildings)', () => {
+    for (const [x, y, z] of RIO_ORBS) expect(buried(x, y, z), `orb ${x},${z}`).toBe(false);
+    for (const t of RIO_TOKENS) expect(buried(t.pos[0], t.pos[1], t.pos[2]), t.id).toBe(false);
+    for (const f of RIO_FAST_TRAVEL_POINTS) expect(buried(f.x, 0.1, f.z), f.id).toBe(false);
+    for (const p of RIO_POIS) if (p.y === 0) expect(buried(p.x, 0.1, p.z), p.id).toBe(false);
+  });
+});

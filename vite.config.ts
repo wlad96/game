@@ -10,7 +10,10 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias:
       mode === 'artifact'
-        ? { './saiGlbUrl': fileURLToPath(new URL('./src/game/models/saiGlbUrl.inline.ts', import.meta.url)) }
+        ? {
+            './saiGlbUrl': fileURLToPath(new URL('./src/game/models/saiGlbUrl.inline.ts', import.meta.url)),
+            './cityModelUrls': fileURLToPath(new URL('./src/game/models/cityModelUrls.inline.ts', import.meta.url)),
+          }
         : {},
   },
   build: {

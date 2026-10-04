@@ -1,70 +1,17 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
 import { skinById } from '../../data/items';
 import type { AnimSource } from './SaiModel';
 import { normaliseGeometry, RIG_HEIGHT, rigSai } from './autoRig';
 import { computePose } from './pose';
 import { paintSai } from './saiColors';
+import { loadGlb, preloadGlb } from './glbLoader';
 
 import SAI_GLB_URL from './saiGlbUrl';
 
-/**
- * Loads sai.glb once. A `data:` URL (artifact build) is decoded locally because
- * strict hosts block fetch() of data URLs; a normal URL is fetched.
- */
-interface SaiCache {
-  promise: Promise<void>;
-  scene?: THREE.Object3D;
-  error?: unknown;
-}
-let cache: SaiCache | null = null;
-function loadSai(): THREE.Object3D {
-  if (!cache) {
-    const c: SaiCache = { promise: Promise.resolve() };
-    c.promise = (async () => {
-        let buf: ArrayBuffer;
-        if (SAI_GLB_URL.startsWith('data:')) {
-          const bin = atob(SAI_GLB_URL.slice(SAI_GLB_URL.indexOf(',') + 1));
-          const bytes = new Uint8Array(bin.length);
-          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-          buf = bytes.buffer;
-        } else {
-          const res = await fetch(SAI_GLB_URL);
-          if (!res.ok) throw new Error(`sai.glb: HTTP ${res.status}`);
-          buf = await res.arrayBuffer();
-        }
-        // GLTFLoader decodes embedded textures with fetch(blob:) when
-        // createImageBitmap exists; strict CSP hosts block that. Hiding it while
-        // the parser is constructed makes it use <img> loading instead.
-        const w = window as unknown as { createImageBitmap?: typeof createImageBitmap };
-        const cib = w.createImageBitmap;
-        w.createImageBitmap = undefined;
-        let pending: Promise<{ scene: THREE.Group }>;
-        try {
-          pending = new GLTFLoader().parseAsync(buf, '');
-        } finally {
-          w.createImageBitmap = cib;
-        }
-        const gltf = await pending;
-        c.scene = gltf.scene;
-      })().catch((e) => {
-        c.error = e;
-      });
-    cache = c;
-  }
-  if (cache.error) throw cache.error;
-  if (!cache.scene) throw cache.promise;
-  return cache.scene;
-}
-if (typeof window !== 'undefined') void Promise.resolve().then(() => {
-  try {
-    loadSai();
-  } catch {
-    // preload only
-  }
-});
+const loadSai = () => loadGlb(SAI_GLB_URL);
+if (typeof window !== 'undefined') preloadGlb(SAI_GLB_URL);
 
 const HEIGHT = 2.05;
 const damp = (a: number, b: number, k: number, dt: number) => a + (b - a) * (1 - Math.exp(-k * dt));
