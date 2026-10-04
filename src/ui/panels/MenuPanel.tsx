@@ -21,6 +21,14 @@ export function MenuPanel() {
           <div className="desc">High: shadows, bloom, sparkles, full resolution. Low: lighter for phones.</div>
         </div>
         <div className="card">
+          <div className="name">Sai model</div>
+          <div className="row">
+            <button className={`btn ${(s.settings.saiModel ?? 'glb') === 'glb' ? 'cyan' : ''}`} onClick={() => set({ saiModel: 'glb' })}>New 3D model</button>
+            <button className={`btn ${s.settings.saiModel === 'classic' ? 'cyan' : ''}`} onClick={() => set({ saiModel: 'classic' })}>Classic</button>
+          </div>
+          <div className="desc">The new model is not rigged yet, so it moves as a whole body (hop, lean, flip) until animations arrive.</div>
+        </div>
+        <div className="card">
           <div className="name">Audio</div>
           <div className="row">
             <button className={`btn ${s.settings.sound ? 'cyan' : ''}`} onClick={() => set({ sound: !s.settings.sound })}>Sound {s.settings.sound ? 'on' : 'off'}</button>

@@ -4,7 +4,8 @@ import * as THREE from 'three';
 import { play } from '../audio/sfx';
 import { useGame } from '../store/gameStore';
 import { input } from './input';
-import { SaiModel, type AnimSource } from './models/SaiModel';
+import { SaiAvatar } from './models/SaiAvatar';
+import type { AnimSource } from './models/SaiModel';
 import { raycastWorld, stepBody, world } from './physics';
 import { interactables, inRange, player, playerCommands, triggers, type AnimState } from './runtime';
 
@@ -326,7 +327,7 @@ export function Player({ spawn, cameraDistance = 7 }: { spawn: Spawn; cameraDist
 
   return (
     <group ref={group}>
-      <SaiModel skin={skin} source={() => animSrc.current} riding={riding} castShadow={quality === 'high'} />
+      <SaiAvatar skin={skin} source={() => animSrc.current} riding={riding} castShadow={quality === 'high'} />
     </group>
   );
 }

@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import type { CityArt } from '../../data/types';
 import { useGame } from '../../store/gameStore';
-import { SaiModel } from '../models/SaiModel';
+import { SaiAvatar } from '../models/SaiAvatar';
 import { cityArtTexture } from '../textures';
 
 const STREAKS = 420;
@@ -86,7 +86,7 @@ export default function Warp({ art, artKey }: { art: CityArt | null; artKey: str
       {!art && <mesh ref={picture} visible={false} />}
       <group ref={sai}>
         <group rotation={[-1.1, Math.PI, 0]} position={[0, -0.8, 0]}>
-          <SaiModel skin={skin} source={() => ({ anim: 'dash', animTime: 0, speed: 0 })} castShadow={false} />
+          <SaiAvatar skin={skin} source={() => ({ anim: 'dash', animTime: 0, speed: 0 })} castShadow={false} />
           {[-0.17, 0.17].map((x) => (
             <mesh key={x} position={[x, -0.2, 0]} rotation={[Math.PI, 0, 0]}>
               <coneGeometry args={[0.14, 0.9, 10]} />

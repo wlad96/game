@@ -1,8 +1,8 @@
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useRef, useState } from 'react';
+import { Suspense, useRef, useState } from 'react';
 import type * as THREE from 'three';
 import { ITEMS, SKINS } from '../../data/items';
-import { SaiModel } from '../../game/models/SaiModel';
+import { SaiAvatar } from '../../game/models/SaiAvatar';
 import type { AnimState } from '../../game/runtime';
 import { useGame } from '../../store/gameStore';
 import { Panel } from './Panel';
@@ -17,7 +17,7 @@ function Turntable({ skin, anim }: { skin: string; anim: AnimState }) {
   });
   return (
     <group ref={g} position={[0, -1.1, 0]}>
-      <SaiModel skin={skin} source={() => ({ anim, animTime: 0, speed: 0 })} castShadow={false} />
+      <SaiAvatar skin={skin} source={() => ({ anim, animTime: 0, speed: 0 })} castShadow={false} />
     </group>
   );
 }
@@ -45,7 +45,9 @@ export function WardrobePanel() {
             <ambientLight intensity={1.1} />
             <directionalLight position={[3, 5, 4]} intensity={2.2} />
             <directionalLight position={[-4, 2, -3]} intensity={0.8} color="#7fdcff" />
-            <Turntable skin={preview} anim={anim} />
+            <Suspense fallback={null}>
+              <Turntable skin={preview} anim={anim} />
+            </Suspense>
           </Canvas>
         </div>
         <div>

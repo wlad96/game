@@ -81,7 +81,7 @@ interface Persisted {
   stamps: string[];
   seasonClaimed: number[];
   totalOrbs: number;
-  settings: { quality: Quality; sound: boolean; music: boolean };
+  settings: { quality: Quality; sound: boolean; music: boolean; saiModel?: 'glb' | 'classic' };
 }
 
 interface Runtime {
