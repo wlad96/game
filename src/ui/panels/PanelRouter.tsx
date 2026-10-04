@@ -1,5 +1,6 @@
 import { useGame } from '../../store/gameStore';
 import { InventoryPanel, PassportPanel, ProfilePanel, SeasonPanel } from './CollectionPanels';
+import { HelpPanel } from './HelpPanel';
 import { MapPanel } from './MapPanel';
 import { MenuPanel } from './MenuPanel';
 import { PortalPanel } from './PortalPanel';
@@ -41,6 +42,8 @@ export function PanelRouter() {
       return <SlotPanel />;
     case 'menu':
       return <MenuPanel />;
+    case 'help':
+      return <HelpPanel />;
     default:
       return null;
   }

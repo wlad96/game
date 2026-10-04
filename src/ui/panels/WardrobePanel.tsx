@@ -1,4 +1,5 @@
 import { Canvas, useFrame } from '@react-three/fiber';
+import { tr } from '../../i18n';
 import { Suspense, useRef, useState } from 'react';
 import type * as THREE from 'three';
 import { ITEMS, SKINS } from '../../data/items';
@@ -36,7 +37,7 @@ export function WardrobePanel() {
         <div className="cat-list">
           {CATS.map((c) => (
             <button key={c} className={c === cat ? 'active' : ''} onClick={() => setCat(c)}>
-              {c}
+              {tr(c)}
             </button>
           ))}
         </div>
@@ -65,13 +66,13 @@ export function WardrobePanel() {
                     style={{ opacity: owned ? 1 : 0.6, cursor: 'pointer' }}
                   >
                     <div className="swatch" style={{ background: `linear-gradient(135deg, ${sk.suit} 0 55%, ${sk.trim} 55% 75%, ${sk.gloves} 75%)` }} />
-                    <div className="name" style={{ fontSize: 13 }}>{sk.name}</div>
+                    <div className="name" style={{ fontSize: 13 }}>{tr(sk.name)}</div>
                     {owned ? (
                       <button className="btn" style={{ padding: '6px 8px' }} disabled={s.equippedSkin === sk.id} onClick={() => s.equipSkin(sk.id)}>
-                        {s.equippedSkin === sk.id ? 'Equipped' : 'Equip'}
+                        {s.equippedSkin === sk.id ? tr('Equipped') : tr('Equip')}
                       </button>
                     ) : (
-                      <span className="badge gray" style={{ textAlign: 'center' }}>{sk.source}</span>
+                      <span className="badge gray" style={{ textAlign: 'center' }}>{tr(sk.source)}</span>
                     )}
                   </div>
                 );
@@ -82,7 +83,7 @@ export function WardrobePanel() {
             <div className="grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
               {(['wave', 'celebrate', 'sit', 'dance'] as AnimState[]).map((a, i) => (
                 <button key={a} className={`btn ${anim === a ? 'cyan' : ''}`} onClick={() => setAnim(anim === a ? 'idle' : a)}>
-                  {['👋', '🎉', '🪑', '🕺'][i]} {a} · {i + 1}
+                  {['👋', '🎉', '🪑', '🕺'][i]} {tr(a)} · {i + 1}
                 </button>
               ))}
             </div>
@@ -93,19 +94,19 @@ export function WardrobePanel() {
                 {pets.map((p) => (
                   <div key={p.id} className={`card ${s.equippedPet === p.id ? 'selected' : ''}`}>
                     <div className="big-ico">{p.icon}</div>
-                    <div className="name">{p.name}</div>
+                    <div className="name">{tr(p.name)}</div>
                     <button className="btn" onClick={() => s.equipPet(s.equippedPet === p.id ? null : p.id)}>
-                      {s.equippedPet === p.id ? 'Dismiss' : 'Summon'}
+                      {s.equippedPet === p.id ? tr('Dismiss') : tr('Summon')}
                     </button>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="muted">No pets yet — adopt one in the Shop.</div>
+              <div className="muted">{tr('No pets yet — adopt one in the Shop.')}</div>
             ))}
           {!['Suit', 'Emotes', 'Pets'].includes(cat) && (
             <div className="muted" style={{ fontSize: 14 }}>
-              {cat} pieces arrive with the Season Pass. Every part swaps materials on the same Sai skeleton, so any combination works with every animation.
+              {tr('{cat}: new pieces arrive with the Season Pass. Every part fits the same Sai skeleton, so any combination works with every animation.', { cat: tr(cat) })}
             </div>
           )}
         </div>

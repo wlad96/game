@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { tr } from '../../i18n';
 import { play } from '../../audio/sfx';
 import { E, generatePuzzle, isNode, isSolved, N, poweredTiles, rotateTile, S, W } from '../../game/puzzle';
 import { useGame, type PuzzleArgs } from '../../store/gameStore';
@@ -43,7 +44,7 @@ export function PuzzlePanel() {
       g.setFlag('rioRestored');
       play('beacon');
       g.questEvent({ type: 'puzzle', target: 'beacon3' });
-      g.toast('Rio network restored — the whole city glows!', '✨');
+      g.toast(tr('Rio network restored — the whole city glows!'), '✨', 'reward');
     } else if (args.target === 'artifact_station') {
       const inv = { ...g.inventory };
       if (inv.ancient_artifact) inv.ancient_artifact -= 1;
@@ -53,9 +54,9 @@ export function PuzzlePanel() {
   };
 
   return (
-    <Panel title={args.title} icon="🧩" narrow>
+    <Panel title={tr(args.title)} icon="🧩" narrow>
       <div className="muted" style={{ textAlign: 'center', marginBottom: 10, fontSize: 14 }}>
-        Click tiles to rotate them. Connect every energy node to the golden core.
+        {tr('Click tiles to rotate them. Connect every energy node to the golden core.')}
       </div>
       <div className="net" style={{ gridTemplateColumns: `repeat(${p.size}, 1fr)` }}>
         {p.tiles.map((m, i) => (
@@ -77,15 +78,15 @@ export function PuzzlePanel() {
       </div>
       <div className="row" style={{ justifyContent: 'space-between', marginTop: 14 }}>
         <span className="muted">
-          Nodes lit: <b style={{ color: 'var(--cyan)' }}>{lit}/{nodes}</b> · moves {moves}
+          {tr('Nodes lit')}: <b style={{ color: 'var(--cyan)' }}>{lit}/{nodes}</b> · {tr('moves')} {moves}
         </span>
         {solved ? (
           <button className="btn primary" onClick={finish}>
-            {args.target === 'beacon3' ? 'Restore Network ⚡' : 'Artifact Restored ✓'}
+            {args.target === 'beacon3' ? tr('Restore Network ⚡') : tr('Artifact Restored ✓')}
           </button>
         ) : (
           <button className="btn" onClick={() => { setP(initial); setMoves(0); }}>
-            Reset
+            {tr('Reset')}
           </button>
         )}
       </div>

@@ -1,4 +1,5 @@
 import { ITEMS, itemById } from '../../data/items';
+import { tr } from '../../i18n';
 import { TROPHY_SLOTS } from '../../data/room';
 import { useGame } from '../../store/gameStore';
 import { Panel } from './Panel';
@@ -20,28 +21,28 @@ function FurnitureSlot({ slot }: { slot: string }) {
           <div className="row">
             <span style={{ fontSize: 28 }}>{itemById(placed.item)?.icon}</span>
             <span className="name" style={{ flex: 1 }}>{itemById(placed.item)?.name}</span>
-            <button className="btn" onClick={() => s.rotateFurniture(slot)}>⟳ Rotate</button>
-            <button className="btn" onClick={() => s.placeFurniture(slot, null)}>Remove</button>
+            <button className="btn" onClick={() => s.rotateFurniture(slot)}>{tr('⟳ Rotate')}</button>
+            <button className="btn" onClick={() => s.placeFurniture(slot, null)}>{tr('Remove')}</button>
           </div>
         </div>
       )}
-      <div className="muted" style={{ marginBottom: 8, fontSize: 13 }}>Place from inventory:</div>
+      <div className="muted" style={{ marginBottom: 8, fontSize: 13 }}>{tr('Place from inventory:')}</div>
       {owned.length ? (
         <div className="grid">
           {owned.map((it) => (
             <div key={it.id} className="card">
               <div className="big-ico">{it.icon}</div>
-              <div className="name">{it.name}</div>
+              <div className="name">{tr(it.name)}</div>
               <button className="btn primary" onClick={() => { s.placeFurniture(slot, it.id); s.closePanel(); }}>
-                Place (×{s.inventory[it.id]})
+                {tr('Place')} (×{s.inventory[it.id]})
               </button>
             </div>
           ))}
         </div>
       ) : (
         <div className="row" style={{ justifyContent: 'space-between' }}>
-          <span className="muted">No furniture in your inventory.</span>
-          <button className="btn cyan" onClick={() => s.openPanel('shop')}>Open Shop</button>
+          <span className="muted">{tr('No furniture in your inventory.')}</span>
+          <button className="btn cyan" onClick={() => s.openPanel('shop')}>{tr('Open Shop')}</button>
         </div>
       )}
     </Panel>
@@ -61,14 +62,14 @@ function TrophyShelf() {
               <div className="row">
                 <b>Shelf {idx + 1}</b>
                 <span style={{ fontSize: 24 }}>{item ? itemById(item)?.icon : '—'}</span>
-                <span style={{ flex: 1 }}>{item ? itemById(item)?.name : <span className="muted">empty</span>}</span>
-                {item && <button className="btn" onClick={() => s.placeTrophy(t, null)}>Take back</button>}
+                <span style={{ flex: 1 }}>{item ? itemById(item)?.name : <span className="muted">{tr('empty')}</span>}</span>
+                {item && <button className="btn" onClick={() => s.placeTrophy(t, null)}>{tr('Take back')}</button>}
               </div>
               {!item && trophies.length > 0 && (
                 <div className="row" style={{ flexWrap: 'wrap' }}>
                   {trophies.map((it) => (
                     <button key={it.id} className="btn primary" onClick={() => s.placeTrophy(t, it.id)}>
-                      {it.icon} Place {it.name}
+                      {it.icon} {tr('Place')} {tr(it.name)}
                     </button>
                   ))}
                 </div>
@@ -77,7 +78,7 @@ function TrophyShelf() {
           );
         })}
       </div>
-      {trophies.length === 0 && <div className="muted" style={{ marginTop: 10, fontSize: 13 }}>Complete quests to earn trophies like the Rio Energy Crystal.</div>}
+      {trophies.length === 0 && <div className="muted" style={{ marginTop: 10, fontSize: 13 }}>{tr('Complete quests to earn trophies like the Rio Energy Crystal.')}</div>}
     </Panel>
   );
 }

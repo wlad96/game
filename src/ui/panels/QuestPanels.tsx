@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { tr } from '../../i18n';
 import { itemById } from '../../data/items';
 import { QUESTS } from '../../data/quests';
 import { ROOM_LEVELS } from '../../data/room';
@@ -13,7 +14,7 @@ export function rewardText(r: Reward) {
   const parts: string[] = [];
   if (r.energy) parts.push(`⚡ ${r.energy}`);
   if (r.xp) parts.push(`⭐ ${r.xp} XP`);
-  for (const it of r.items ?? []) parts.push(it.id.startsWith('skin_') ? '👕 Skin' : `${itemById(it.id)?.icon ?? ''} ${itemById(it.id)?.name ?? it.id}`);
+  for (const it of r.items ?? []) parts.push(it.id.startsWith('skin_') ? `👕 ${tr('Skin')}` : `${itemById(it.id)?.icon ?? ''} ${tr(itemById(it.id)?.name ?? it.id)}`);
   return parts.join('  ·  ');
 }
 
@@ -21,7 +22,7 @@ function QuestRow({ q }: { q: QuestDef }) {
   const s = useGame();
   const st = s.quests[q.id];
   const available = isQuestAvailable(q, s);
-  const lockedReason = !st && !available ? (q.requiresFlag === 'crystalPlaced' && s.quests[q.requires?.[0] ?? '']?.status === 'completed' ? 'Place the Energy Crystal on your Trophy Shelf' : 'Requires previous story chapter') : null;
+  const lockedReason = !st && !available ? (q.requiresFlag === 'crystalPlaced' && s.quests[q.requires?.[0] ?? '']?.status === 'completed' ? tr('Place the Energy Crystal on your Trophy Shelf') : tr('Requires previous story chapter')) : null;
   const isGiverQuest = q.giver && !st;
   return (
     <div className="card" style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
@@ -30,33 +31,33 @@ function QuestRow({ q }: { q: QuestDef }) {
       </div>
       <div style={{ flex: 1 }}>
         <div className="row">
-          <span className="name">{q.title}</span>
-          <span className="badge">{q.type.toUpperCase()}</span>
-          <span className="badge gray">{q.city.toUpperCase()}</span>
+          <span className="name">{tr(q.title)}</span>
+          <span className="badge">{tr(q.type).toUpperCase()}</span>
+          <span className="badge gray">{tr(q.city).toUpperCase()}</span>
         </div>
-        <div className="desc">{q.description}</div>
+        <div className="desc">{tr(q.description)}</div>
         <div style={{ fontSize: 12, marginTop: 4 }}>
-          Reward: <span className="price">{rewardText(q.reward)}</span>
+          {tr('Reward')}: <span className="price">{rewardText(q.reward)}</span>
         </div>
         {lockedReason && <div style={{ fontSize: 12, color: '#ff9d7a', marginTop: 2 }}>🔒 {lockedReason}</div>}
       </div>
       <div>
         {st?.status === 'completed' ? (
-          <span className="badge green">COMPLETED</span>
+          <span className="badge green">{tr('COMPLETED')}</span>
         ) : st?.status === 'active' ? (
           <button className="btn cyan" disabled={s.trackedQuest === q.id} onClick={() => s.trackQuest(q.id)}>
-            {s.trackedQuest === q.id ? 'Tracking' : 'Track'}
+            {s.trackedQuest === q.id ? tr('Tracking') : tr('Track')}
           </button>
         ) : available && !isGiverQuest ? (
           <button className="btn primary" onClick={() => s.acceptQuest(q.id)}>
-            ACCEPT
+            {tr('ACCEPT')}
           </button>
         ) : available && isGiverQuest ? (
-          <span className="badge gold" title="Talk to the quest giver in the city">
-            TALK TO RIO TECHNICIAN
+          <span className="badge gold" title={tr('Talk to the quest giver in the city')}>
+            {tr('TALK TO RIO TECHNICIAN')}
           </span>
         ) : (
-          <span className="badge gray">LOCKED</span>
+          <span className="badge gray">{tr('LOCKED')}</span>
         )}
       </div>
     </div>
@@ -90,11 +91,11 @@ export function QuestTerminal() {
           {list.map((q) => (
             <QuestRow key={q.id} q={q} />
           ))}
-          {tab === 'daily' && <div className="muted" style={{ fontSize: 12 }}>Daily quests reset every day (UTC). Energy Orbs respawn too.</div>}
+          {tab === 'daily' && <div className="muted" style={{ fontSize: 12 }}>{tr('Daily quests reset every day (UTC). Energy Orbs respawn too.')}</div>}
         </div>
       ) : (
         <div className="muted" style={{ padding: 24, textAlign: 'center' }}>
-          {tab === 'weekly' ? 'Weekly quests unlock with the next Rio update.' : 'SAI FEST RIO event quests will appear here when the event starts.'}
+          {tab === 'weekly' ? tr('Weekly quests unlock with the next Rio update.') : tr('SAI FEST RIO event quests will appear here when the event starts.')}
         </div>
       )}
     </Panel>
@@ -113,26 +114,31 @@ function Residence() {
       <div className="row" style={{ gap: 16, alignItems: 'stretch', flexWrap: 'wrap' }}>
         {ROOM_LEVELS.map((l) => (
           <div key={l.level} className={`card ${l.level === room.level ? 'selected' : ''}`} style={{ flex: '1 1 160px', opacity: l.level > room.level + 1 ? 0.5 : 1 }}>
-            <div className="name">{l.name}</div>
-            <div className="desc">{l.slots} furniture slots{l.level >= 2 ? ' · energy floor lights' : ''}{l.level >= 3 ? ' · gold ceiling' : ''}{l.level >= 4 ? ' · personal portal (soon)' : ''}</div>
-            {l.level <= room.level ? <span className="badge green">UNLOCKED</span> : <span className="price">⚡ {l.cost}</span>}
+            <div className="name">{tr(l.name)}</div>
+            <div className="desc">
+              {tr('{n} furniture slots', { n: l.slots })}
+              {l.level >= 2 ? ` · ${tr('energy floor lights')}` : ''}
+              {l.level >= 3 ? ` · ${tr('gold ceiling')}` : ''}
+              {l.level >= 4 ? ` · ${tr('personal portal (soon)')}` : ''}
+            </div>
+            {l.level <= room.level ? <span className="badge green">{tr('UNLOCKED')}</span> : <span className="price">⚡ {l.cost}</span>}
           </div>
         ))}
       </div>
       <div style={{ marginTop: 16 }}>
-        Current: <b>{cur.name}</b>
+        {tr('Current')}: <b>{tr(cur.name)}</b>
       </div>
       {next ? (
         <button
           className="btn primary"
           style={{ marginTop: 10 }}
           disabled={energy < next.cost}
-          onClick={() => upgrade(next.cost) && toast(`Upgraded to ${next.name}!`, '🏠')}
+          onClick={() => upgrade(next.cost) && toast(tr('Upgraded to {name}!', { name: tr(next.name) }), '🏠', 'reward')}
         >
-          Upgrade to {next.name} · ⚡ {next.cost}
+          {tr('Upgrade to {name}', { name: tr(next.name) })} · ⚡ {next.cost}
         </button>
       ) : (
-        <div className="muted">Maximum level reached.</div>
+        <div className="muted">{tr('Maximum level reached.')}</div>
       )}
     </div>
   );
@@ -145,8 +151,8 @@ export function QuestJournal() {
   const done = QUESTS.filter((q) => s.quests[q.id]?.status === 'completed');
   return (
     <Panel title="Quest Journal" icon="📖">
-      <h3 style={{ marginTop: 0 }}>Active</h3>
-      {active.length === 0 && <div className="muted">No active quests. Visit a Quest Terminal or talk to NPCs with a ❗ marker.</div>}
+      <h3 style={{ marginTop: 0 }}>{tr('Active')}</h3>
+      {active.length === 0 && <div className="muted">{tr('No active quests. Visit a Quest Terminal or talk to NPCs with a ❗ marker.')}</div>}
       <div style={{ display: 'grid', gap: 10 }}>
         {active.map((q) => {
           const st = s.quests[q.id];
@@ -154,32 +160,32 @@ export function QuestJournal() {
           return (
             <div key={q.id} className={`card ${s.trackedQuest === q.id ? 'selected' : ''}`}>
               <div className="row">
-                <span className="name">{q.title}</span>
-                <span className="badge">{q.type.toUpperCase()}</span>
+                <span className="name">{tr(q.title)}</span>
+                <span className="badge">{tr(q.type).toUpperCase()}</span>
                 <button className="btn" style={{ marginLeft: 'auto', padding: '6px 12px' }} onClick={() => s.trackQuest(q.id)}>
-                  {s.trackedQuest === q.id ? '★ Tracked' : 'Track'}
+                  {s.trackedQuest === q.id ? tr('★ Tracked') : tr('Track')}
                 </button>
               </div>
               <div className="desc">
-                ➜ {obj.label} {obj.count && obj.count > 1 ? `(${st.count}/${obj.count})` : ''}
+                ➜ {tr(obj.label)} {obj.count && obj.count > 1 ? `(${st.count}/${obj.count})` : ''}
               </div>
               <Progress value={st.step / q.objectives.length} />
             </div>
           );
         })}
       </div>
-      <h3>Completed</h3>
-      {done.length === 0 && <div className="muted">Nothing yet — the adventure is just beginning.</div>}
+      <h3>{tr('Completed')}</h3>
+      {done.length === 0 && <div className="muted">{tr('Nothing yet — the adventure is just beginning.')}</div>}
       <div className="row" style={{ flexWrap: 'wrap' }}>
         {done.map((q) => (
           <span key={q.id} className="badge green">
-            ✓ {q.title}
+            ✓ {tr(q.title)}
           </span>
         ))}
       </div>
       {s.lore.length > 0 && (
         <>
-          <h3>Lore</h3>
+          <h3>{tr('Lore')}</h3>
           {s.lore.map((l, i) => (
             <div key={i} className="lore" style={{ textAlign: 'left' }}>
               “{l}”

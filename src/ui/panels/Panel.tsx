@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { tr } from '../../i18n';
 import { useGame } from '../../store/gameStore';
 
 export function Panel({ title, children, narrow, icon }: { title: string; children: ReactNode; narrow?: boolean; icon?: string }) {
@@ -8,8 +9,8 @@ export function Panel({ title, children, narrow, icon }: { title: string; childr
       <div className={`panel glass ${narrow ? 'narrow' : ''}`}>
         <div className="panel-head">
           {icon && <span style={{ fontSize: 22 }}>{icon}</span>}
-          <h2>{title}</h2>
-          <button className="close" onClick={close} aria-label="Close">
+          <h2>{tr(title)}</h2>
+          <button className="close" onClick={close} aria-label={tr('Close')}>
             ✕
           </button>
         </div>
@@ -24,7 +25,7 @@ export function Tabs<T extends string>({ tabs, value, onChange }: { tabs: { id: 
     <div className="tabs">
       {tabs.map((t) => (
         <button key={t.id} className={`tab ${value === t.id ? 'active' : ''}`} onClick={() => onChange(t.id)}>
-          {t.label}
+          {tr(t.label)}
         </button>
       ))}
     </div>

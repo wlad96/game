@@ -6,9 +6,11 @@ import type { CityId, QuestEvent, Reward, SceneId } from '../data/types';
 import { play } from '../audio/sfx';
 import { addXp, applyQuestEvent, isQuestAvailable, type QuestStates } from './questEngine';
 import { ownedCities } from '../services/nftAccess';
+import { setLang, tr, type Lang } from '../i18n';
 
 export type PanelId =
   | 'menu'
+  | 'help'
   | 'map'
   | 'inventory'
   | 'quests'
@@ -24,10 +26,13 @@ export type PanelId =
   | 'slot'
   | 'upgrade';
 
+export type ToastKind = 'info' | 'quest' | 'reward' | 'warn';
+
 export interface Toast {
   id: number;
   text: string;
   icon?: string;
+  kind: ToastKind;
 }
 
 export interface DialogState {
@@ -81,7 +86,7 @@ interface Persisted {
   stamps: string[];
   seasonClaimed: number[];
   totalOrbs: number;
-  settings: { quality: Quality; sound: boolean; music: boolean; saiModel?: 'glb' | 'classic' };
+  settings: { quality: Quality; sound: boolean; music: boolean; saiModel?: 'glb' | 'classic'; lang?: Lang };
 }
 
 interface Runtime {
@@ -105,7 +110,7 @@ interface Actions {
   closePanel: () => void;
   setPrompt: (p: Runtime['prompt']) => void;
   showDialog: (d: DialogState | null) => void;
-  toast: (text: string, icon?: string) => void;
+  toast: (text: string, icon?: string, kind?: ToastKind) => void;
   dismissToast: (id: number) => void;
   closeReward: () => void;
 
@@ -165,6 +170,7 @@ const initialPersisted = (): Persisted => ({
       typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches ? 'low' : 'high',
     sound: true,
     music: true,
+    lang: 'ru',
   },
 });
 
@@ -207,9 +213,9 @@ export const useGame = create<GameState>()(
       closePanel: () => set({ panel: null, panelArg: null }),
       setPrompt: (p) => set({ prompt: p }),
       showDialog: (d) => set({ dialog: d }),
-      toast: (text, icon) => {
+      toast: (text, icon, kind = 'info') => {
         const id = toastId++;
-        set((s) => ({ toasts: [...s.toasts.slice(-3), { id, text, icon }] }));
+        set((s) => ({ toasts: [...s.toasts.slice(-2), { id, text, icon, kind }] }));
         setTimeout(() => get().dismissToast(id), 3200);
       },
       dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
@@ -221,7 +227,7 @@ export const useGame = create<GameState>()(
         if (!isQuestAvailable(def, s)) return;
         set({ quests: { ...s.quests, [id]: { status: 'active', step: 0, count: 0 } }, trackedQuest: id });
         play('quest');
-        get().toast(`Quest accepted: ${def.title}`, '📜');
+        get().toast(tr('Quest accepted: {q}', { q: tr(def.title) }), '📜', 'quest');
       },
       trackQuest: (id) => set({ trackedQuest: id }),
 
@@ -233,7 +239,7 @@ export const useGame = create<GameState>()(
         for (const id of res.advanced) {
           const def = questById(id);
           const obj = def.objectives[res.quests[id].step];
-          get().toast(obj.label, '➜');
+          get().toast(tr(obj.label), '➜', 'quest');
         }
         for (const id of res.completed) {
           const def = questById(id);
@@ -275,7 +281,7 @@ export const useGame = create<GameState>()(
         set({ level: lv.level, xp: lv.xp, saiEnergy: s.saiEnergy + (r.energy ?? 0), inventory, skins, cityXp });
         if (lv.levelsGained.length) {
           play('levelup');
-          get().toast(`Level up! You are now level ${lv.level}`, '⭐');
+          get().toast(tr('Level up! You are now level {n}', { n: lv.level }), '⭐', 'reward');
           return lv.level;
         }
         return undefined;
@@ -297,7 +303,7 @@ export const useGame = create<GameState>()(
           inv[opts.item] = (inv[opts.item] ?? 0) + 1;
           set({ inventory: inv });
         }
-        if (opts.toast) get().toast(opts.toast, opts.icon);
+        if (opts.toast) get().toast(tr(opts.toast), opts.icon, 'reward');
         if (opts.event) get().questEvent(opts.event);
       },
 
@@ -305,22 +311,22 @@ export const useGame = create<GameState>()(
         const s = get();
         if (s.fastTravel.includes(id)) return;
         set({ fastTravel: [...s.fastTravel, id] });
-        get().toast(`Fast travel unlocked: ${name}`, '📍');
+        get().toast(tr('Fast travel unlocked: {name}', { name: tr(name) }), '📍', 'quest');
       },
 
       buy: (id, price) => {
         const s = get();
         if (s.saiEnergy < price) {
           play('error');
-          get().toast('Not enough SAI Energy', '⚡');
+          get().toast(tr('Not enough SAI Energy'), '⚡', 'warn');
           return false;
         }
         if (id.startsWith('skin_')) {
           set({ saiEnergy: s.saiEnergy - price, skins: [...s.skins, id.slice(5)] });
-          get().toast(`${skinById(id.slice(5)).name} unlocked`, '👕');
+          get().toast(tr('{name} unlocked', { name: tr(skinById(id.slice(5)).name) }), '👕', 'reward');
         } else {
           set({ saiEnergy: s.saiEnergy - price, inventory: { ...s.inventory, [id]: (s.inventory[id] ?? 0) + 1 } });
-          get().toast(`Bought ${itemById(id)?.name ?? id}`, itemById(id)?.icon);
+          get().toast(tr('Bought {name}', { name: tr(itemById(id)?.name ?? id) }), itemById(id)?.icon, 'reward');
         }
         play('collect');
         return true;
@@ -362,14 +368,14 @@ export const useGame = create<GameState>()(
         if (item === 'rio_energy_crystal' && !s.flags.crystalPlaced) {
           get().setFlag('crystalPlaced');
           play('crystal');
-          get().toast('The crystal hums… New story chapter available!', '💎');
+          get().toast(tr('The crystal hums… New story chapter available!'), '💎', 'quest');
         }
       },
       upgradeRoom: (cost) => {
         const s = get();
         if (s.saiEnergy < cost) {
           play('error');
-          get().toast('Not enough SAI Energy', '⚡');
+          get().toast(tr('Not enough SAI Energy'), '⚡', 'warn');
           return false;
         }
         set({ saiEnergy: s.saiEnergy - cost, room: { ...s.room, level: s.room.level + 1 } });
@@ -383,7 +389,7 @@ export const useGame = create<GameState>()(
         if (ownedCities(collections).includes('rio') && !s.skins.includes('rio')) {
           // NFT perks are cosmetic / content, never stats (TZ §7)
           set({ skins: [...get().skins, 'rio'] });
-          get().toast('Rio NFT detected: Full City Access + Rio Sai skin', '🎟️');
+          get().toast(tr('Rio NFT detected: Full City Access + Rio Sai skin'), '🎟️', 'reward');
         }
       },
       claimSeasonTier: (tier, reward) => {
@@ -393,7 +399,10 @@ export const useGame = create<GameState>()(
         get().grantReward(reward);
         play('collect');
       },
-      setSettings: (p) => set((s) => ({ settings: { ...s.settings, ...p } })),
+      setSettings: (p) => {
+        if (p.lang) setLang(p.lang);
+        set((s) => ({ settings: { ...s.settings, ...p } }));
+      },
 
       checkDaily: () => {
         const s = get();
@@ -406,7 +415,7 @@ export const useGame = create<GameState>()(
           if (!k.startsWith('orb:') && !k.startsWith('vp:')) collected[k] = v;
         }
         set({ dailyDate: d, quests, collected, saiEnergy: s.saiEnergy + (s.dailyDate ? 50 : 0) });
-        if (s.dailyDate) get().toast('Daily login bonus: +50 SAI Energy. New daily quests!', '🎁');
+        if (s.dailyDate) get().toast(tr('Daily login bonus: +50 SAI Energy. New daily quests!'), '🎁', 'reward');
       },
 
       resetProgress: () => {
@@ -423,6 +432,7 @@ export const useGame = create<GameState>()(
         return out;
       },
       onRehydrateStorage: () => (state) => {
+        setLang(state?.settings.lang ?? 'ru');
         state?.checkDaily();
         useGame.setState({ hydrated: true });
       },

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { tr } from '../i18n';
 import { play } from '../audio/sfx';
 import { input } from '../game/input';
 import { useGame } from '../store/gameStore';
@@ -28,18 +29,18 @@ export function Dialog() {
     <div className="dialog glass">
       <div className="portrait">{dialog.portrait}</div>
       <div style={{ flex: 1 }}>
-        <div className="who">{dialog.name}</div>
-        <p>{dialog.lines[i]}</p>
+        <div className="who">{tr(dialog.name)}</div>
+        <p>{tr(dialog.lines[i])}</p>
         <div className="row" style={{ justifyContent: 'flex-end', flexWrap: 'wrap' }}>
           {!last && (
             <button className="btn cyan" onClick={() => { play('click'); setI(i + 1); }}>
-              Next ▸
+              {tr('Next')} ▸
             </button>
           )}
           {last &&
-            (dialog.actions ?? [{ label: 'Close', onClick: () => show(null), primary: false }]).map((a) => (
+            (dialog.actions ?? [{ label: tr('Close'), onClick: () => show(null), primary: false }]).map((a) => (
               <button key={a.label} className={`btn ${a.primary ? 'primary' : ''}`} onClick={() => { play('click'); a.onClick(); }}>
-                {a.label}
+                {tr(a.label)}
               </button>
             ))}
         </div>

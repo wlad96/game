@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { tr } from '../../i18n';
 import { ITEMS, RARITY_COLOR, SKINS } from '../../data/items';
 import { useGame } from '../../store/gameStore';
 import { Panel, Tabs } from './Panel';
@@ -36,11 +37,11 @@ export function ShopPanel() {
             return (
               <div key={sk.id} className="card">
                 <div className="swatch" style={{ background: `linear-gradient(135deg, ${sk.suit} 0 55%, ${sk.trim} 55% 75%, ${sk.gloves} 75%)` }} />
-                <div className="name">{sk.name}</div>
-                <div className="desc">{sk.source}</div>
+                <div className="name">{tr(sk.name)}</div>
+                <div className="desc">{tr(sk.source)}</div>
                 {owned ? (
                   <button className="btn" disabled={s.equippedSkin === sk.id} onClick={() => s.equipSkin(sk.id)}>
-                    {s.equippedSkin === sk.id ? 'Equipped' : 'Equip'}
+                    {s.equippedSkin === sk.id ? tr('Equipped') : tr('Equip')}
                   </button>
                 ) : sk.price ? (
                   <button className="btn primary" disabled={!!lockedLevel || s.saiEnergy < sk.price} onClick={() => s.buy(`skin_${sk.id}`, sk.price!)}>
@@ -62,10 +63,10 @@ export function ShopPanel() {
             return (
               <div key={it.id} className="card" style={{ borderColor: RARITY_COLOR[it.rarity] + '66' }}>
                 <div className="big-ico">{it.icon}</div>
-                <div className="name">{it.name}</div>
-                <div className="desc">{it.description}</div>
+                <div className="name">{tr(it.name)}</div>
+                <div className="desc">{tr(it.description)}</div>
                 {single && owned ? (
-                  <span className="badge green">OWNED</span>
+                  <span className="badge green">{tr('OWNED')}</span>
                 ) : (
                   <button className="btn primary" disabled={s.saiEnergy < it.price!} onClick={() => s.buy(it.id, it.price!)}>
                     ⚡ {it.price} {owned ? `(have ${owned})` : ''}
@@ -86,19 +87,19 @@ export function ShopPanel() {
           ].map(([i, n, k]) => (
             <div key={n} className="card">
               <div className="big-ico">{i}</div>
-              <div className="name">{n}</div>
-              <span className="badge green">OWNED · key {k}</span>
+              <div className="name">{tr(n)}</div>
+              <span className="badge green">{tr('OWNED · key {k}', { k })}</span>
             </div>
           ))}
         </div>
       )}
-      {tab === 'effects' && <div className="muted" style={{ padding: 24, textAlign: 'center' }}>Trails and auras arrive with the Season Pass.</div>}
+      {tab === 'effects' && <div className="muted" style={{ padding: 24, textAlign: 'center' }}>{tr('Trails and auras arrive with the Season Pass.')}</div>}
       {tab === 'pass' && (
         <div className="card">
-          <div className="name">Season 1 Premium Pass</div>
-          <div className="desc">Extra cosmetics, rare furniture, pets, effects and bonus quest lines. The story is always free.</div>
+          <div className="name">{tr('Season 1 Premium Pass')}</div>
+          <div className="desc">{tr('Extra cosmetics, rare furniture, pets, effects and bonus quest lines. The story is always free.')}</div>
           <button className="btn" onClick={() => s.openPanel('season')}>
-            View tiers
+            {tr('View tiers')}
           </button>
         </div>
       )}

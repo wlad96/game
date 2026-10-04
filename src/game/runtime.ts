@@ -120,3 +120,6 @@ export function inRange(p: THREE.Vector3, target: THREE.Vector3, radius: number,
 
 /** Uncollected collectibles in the current scene — pets use this to hint (TZ §29). */
 export const collectibles = new Map<string, THREE.Vector3>();
+
+/** The active 3D camera, so the HTML HUD can project world points to the screen. */
+export const view: { camera: THREE.PerspectiveCamera | null } = { camera: null };

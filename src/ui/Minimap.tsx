@@ -1,3 +1,4 @@
+import { tr } from '../i18n';
 import { useEffect, useRef } from 'react';
 import { player } from '../game/runtime';
 import { poiById, RIO_POIS, RIO_ZONES } from '../game/scenes/rioLayout';
@@ -91,7 +92,7 @@ export function Minimap() {
   }, []);
 
   return (
-    <div className="minimap" onClick={() => open('map')} title="Open map (M)">
+    <div className="minimap" onClick={() => open('map')} title={tr('Open map (M)')}>
       <canvas ref={ref} width={336} height={336} />
     </div>
   );

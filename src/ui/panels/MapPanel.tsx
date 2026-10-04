@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { tr } from '../../i18n';
 import { questById } from '../../data/quests';
 import { player, playerCommands } from '../../game/runtime';
 import { HOME_POIS } from '../../game/scenes/homeLayout';
@@ -34,7 +35,7 @@ function RioMap() {
     s.closePanel();
     if (inRio) {
       playerCommands.teleport = { x: f.x, y: f.y, z: f.z, yaw: f.yaw };
-      s.toast(`Fast travel: ${f.name}`, '📍');
+      s.toast(tr('Fast travel: {name}', { name: tr(f.name) }), '📍', 'quest');
     } else s.goTo('rio', `ft:${id}`, 'fade');
   };
 
@@ -46,15 +47,23 @@ function RioMap() {
           {RIO_ZONES.map((z) => (
             <g key={z.id}>
               <rect x={z.x0} y={z.z0} width={z.x1 - z.x0} height={z.z1 - z.z0} rx={4} fill={z.color} opacity={0.85} />
-              <text x={(z.x0 + z.x1) / 2} y={z.z0 + 8} fontSize={6} textAnchor="middle" fill="#1b2236" fontWeight={700}>
-                {z.name}
+              <text
+                x={(z.x0 + z.x1) / 2}
+                y={z.z0 + 8}
+                fontSize={6}
+                textAnchor="middle"
+                fill="#1b2236"
+                fontWeight={700}
+                {...(tr(z.name).length * 3.3 > z.x1 - z.x0 - 4 ? { textLength: z.x1 - z.x0 - 4, lengthAdjust: 'spacingAndGlyphs' } : {})}
+              >
+                {tr(z.name)}
               </text>
             </g>
           ))}
           {RIO_FAST_TRAVEL_POINTS.map((f) => {
             const found = s.fastTravel.includes(f.id);
             return (
-              <g key={f.id} className="poi" onClick={() => setSel({ label: `Fast Travel: ${f.name}`, icon: '📍', description: found ? 'Discovered.' : 'Find this point in the city to unlock it.', fastTravel: found ? f.id : undefined })}>
+              <g key={f.id} className="poi" onClick={() => setSel({ label: `Fast Travel: ${tr(f.name)}`, icon: '📍', description: found ? 'Discovered.' : 'Find this point in the city to unlock it.', fastTravel: found ? f.id : undefined })}>
                 <circle cx={f.x + 2.5} cy={f.z} r={4} fill={found ? '#59e6ff' : '#6f7d95'} stroke="#fff" strokeWidth={1} />
               </g>
             );
@@ -84,23 +93,25 @@ function RioMap() {
           {sel ? (
             <div className="card">
               <div className="big-ico">{sel.icon}</div>
-              <div className="name">{sel.label}</div>
-              <div className="desc">{sel.description}</div>
+              <div className="name">{tr(sel.label)}</div>
+              <div className="desc">{tr(sel.description ?? '')}</div>
               {sel.reward && (
                 <div style={{ fontSize: 13 }}>
-                  Reward: <span className="price">{sel.reward}</span>
+                  {tr('Reward')}: <span className="price">{sel.reward}</span>
                 </div>
               )}
               {sel.fastTravel && (
                 <button className="btn cyan" onClick={() => travel(sel.fastTravel!)}>
-                  Fast travel
+                  {tr('Fast travel')}
                 </button>
               )}
             </div>
           ) : (
             <div className="muted" style={{ fontSize: 13 }}>
-              Click a marker for details. Gold ring = current quest target. Blue pins = discovered fast travel points ({s.fastTravel.length}/
-              {RIO_FAST_TRAVEL_POINTS.length}).
+              {tr('Click a marker for details. Gold ring = current quest target. Blue pins = discovered fast travel points ({a}/{b}).', {
+                a: s.fastTravel.length,
+                b: RIO_FAST_TRAVEL_POINTS.length,
+              })}
             </div>
           )}
           <div style={{ marginTop: 12, fontSize: 12 }} className="muted">
@@ -133,10 +144,10 @@ function HomeMap() {
           {sel ? (
             <div className="card">
               <div className="big-ico">{sel.icon}</div>
-              <div className="name">{sel.label}</div>
+              <div className="name">{tr(sel.label)}</div>
             </div>
           ) : (
-            <div className="muted">Click a marker. Portals lead to the cities of the South America season.</div>
+            <div className="muted">{tr('Click a marker. Portals lead to the cities of the South America season.')}</div>
           )}
         </div>
       </div>

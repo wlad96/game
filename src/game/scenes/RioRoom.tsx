@@ -1,4 +1,5 @@
 import { useFrame } from '@react-three/fiber';
+import { tr } from '../../i18n';
 import { useMemo, useRef, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { portalByCity } from '../../data/cities';
@@ -222,7 +223,7 @@ export default function RioRoom({ spawnId }: { spawnId: string }) {
     const placed = room.slots[s.id];
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useInteractable(
-      { id: `slot-${s.id}`, pos: [s.x, 0, s.z], radius: 1.1, label: placed ? `${itemById(placed.item)?.name ?? 'Item'} · edit` : 'Empty furniture slot' },
+      { id: `slot-${s.id}`, pos: [s.x, 0, s.z], radius: 1.1, label: placed ? tr('{name} · edit', { name: tr(itemById(placed.item)?.name ?? 'Item') }) : 'Empty furniture slot' },
       () => useGame.getState().openPanel('slot', { kind: 'furniture', slot: s.id }),
       s.minLevel <= level,
     );
@@ -298,7 +299,7 @@ export default function RioRoom({ spawnId }: { spawnId: string }) {
         </mesh>
         <mesh position={[0, 1.9, 0.1]} rotation={[-0.3, 0, 0]}>
           <planeGeometry args={[1.5, 0.9]} />
-          <meshBasicMaterial map={labelTexture('QUESTS', { bg: 'rgba(20,80,160,0.9)', color: '#bff4ff', w: 256, h: 128 })} toneMapped={false} />
+          <meshBasicMaterial map={labelTexture(tr('QUESTS'), { bg: 'rgba(20,80,160,0.9)', color: '#bff4ff', w: 256, h: 128 })} toneMapped={false} />
         </mesh>
         <Label text="Quest Terminal" position={[0, 2.9, 0]} scale={0.5} />
       </group>

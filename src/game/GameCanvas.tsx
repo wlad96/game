@@ -4,6 +4,8 @@ import { portalByCity } from '../data/cities';
 import type { SceneId } from '../data/types';
 import { useGame } from '../store/gameStore';
 import { attachLook } from './input';
+import { view } from './runtime';
+import type * as THREE from 'three';
 
 /**
  * Scenes are code-split: only the active one is downloaded and mounted, and the
@@ -24,7 +26,11 @@ const Warp = lazy(() => import('./scenes/Warp'));
 
 function LookControls() {
   const gl = useThree((s) => s.gl);
+  const camera = useThree((s) => s.camera);
   useEffect(() => attachLook(gl.domElement), [gl]);
+  useEffect(() => {
+    view.camera = camera as THREE.PerspectiveCamera;
+  }, [camera]);
   return null;
 }
 
@@ -33,6 +39,7 @@ export function GameCanvas() {
   const spawn = useGame((s) => s.spawn);
   const transition = useGame((s) => s.transition);
   const quality = useGame((s) => s.settings.quality);
+  const lang = useGame((s) => s.settings.lang ?? 'ru');
   const high = quality === 'high';
 
   const warping = transition?.kind === 'warp';
@@ -49,7 +56,7 @@ export function GameCanvas() {
     >
       <LookControls />
       <Suspense fallback={null}>
-        {warping ? <Warp art={warpArt} artKey="rio" /> : <Active key={`${scene}:${spawn}`} spawnId={spawn} />}
+        {warping ? <Warp art={warpArt} artKey="rio" /> : <Active key={`${scene}:${spawn}:${lang}`} spawnId={spawn} />}
       </Suspense>
     </Canvas>
   );

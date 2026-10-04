@@ -1,4 +1,5 @@
 import { Sky, Sparkles } from '@react-three/drei';
+import { tr } from '../../i18n';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
@@ -166,7 +167,7 @@ function SeasonBoard() {
       ))}
       <mesh position={[0, 3.6, 0]}>
         <planeGeometry args={[5, 2.6]} />
-        <meshBasicMaterial map={labelTexture('SEASON 1', { bg: 'rgba(10,30,80,0.92)', color: '#ffd36b', sub: 'South America', w: 512, h: 256 })} toneMapped={false} side={THREE.DoubleSide} />
+        <meshBasicMaterial map={labelTexture(tr('SEASON 1'), { bg: 'rgba(10,30,80,0.92)', color: '#ffd36b', sub: tr('South America'), w: 512, h: 256 })} toneMapped={false} side={THREE.DoubleSide} />
       </mesh>
     </group>
   );
@@ -223,7 +224,7 @@ export default function HomePlanet({ spawnId }: { spawnId: string }) {
   for (const p of HOME_PORTALS) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useInteractable(
-      { id: `portal-${p.city}`, pos: [p.x + Math.sin(p.yaw) * 2, 0, p.z + Math.cos(p.yaw) * 2], radius: 4.5, label: `Portal: ${p.name}` },
+      { id: `portal-${p.city}`, pos: [p.x + Math.sin(p.yaw) * 2, 0, p.z + Math.cos(p.yaw) * 2], radius: 4.5, label: tr('Portal: {name}', { name: tr(p.name) }) },
       () => useGame.getState().openPanel('portal', p.city),
     );
   }
@@ -318,7 +319,7 @@ export default function HomePlanet({ spawnId }: { spawnId: string }) {
             rotation={p.yaw}
             image={cityArtTexture(p.art, p.city)}
             locked={!open}
-            title={p.name.toUpperCase()}
+            title={tr(p.name).toUpperCase()}
             status={!open ? 'SOON' : access === 'full' ? 'FULL ACCESS' : 'OPEN'}
             statusColor={!open ? '#5a6478' : access === 'full' ? '#d9a531' : '#21c26b'}
             glow={open ? '#59e6ff' : '#7d8aa8'}

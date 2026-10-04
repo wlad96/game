@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { tr } from '../../i18n';
 import { PORTALS, SEASON } from '../../data/cities';
 import { ITEMS, RARITY_COLOR, skinById } from '../../data/items';
 import type { ItemCategory, Reward } from '../../data/types';
@@ -37,9 +38,9 @@ export function InventoryPanel() {
             return (
               <div key={id} className={`card ${s.equippedSkin === id ? 'selected' : ''}`}>
                 <div className="swatch" style={{ background: `linear-gradient(135deg, ${sk.suit}, ${sk.trim})` }} />
-                <div className="name">{sk.name}</div>
+                <div className="name">{tr(sk.name)}</div>
                 <button className="btn" onClick={() => s.equipSkin(id)} disabled={s.equippedSkin === id}>
-                  {s.equippedSkin === id ? 'Equipped' : 'Equip'}
+                  {s.equippedSkin === id ? tr('Equipped') : tr('Equip')}
                 </button>
               </div>
             );
@@ -51,19 +52,19 @@ export function InventoryPanel() {
             <div key={it.id} className="card" style={{ borderColor: RARITY_COLOR[it.rarity] + '66' }}>
               <div className="big-ico">{it.icon}</div>
               <div className="row" style={{ justifyContent: 'space-between' }}>
-                <span className="name">{it.name}</span>
+                <span className="name">{tr(it.name)}</span>
                 <b>×{s.inventory[it.id]}</b>
               </div>
-              <div style={{ fontSize: 11, color: RARITY_COLOR[it.rarity], textTransform: 'uppercase', fontWeight: 800 }}>{it.rarity}</div>
-              <div className="desc">{it.description}</div>
+              <div style={{ fontSize: 11, color: RARITY_COLOR[it.rarity], textTransform: 'uppercase', fontWeight: 800 }}>{tr(it.rarity)}</div>
+              <div className="desc">{tr(it.description)}</div>
               {it.category === 'pet' && (
                 <button className="btn" onClick={() => s.equipPet(s.equippedPet === it.id ? null : it.id)}>
-                  {s.equippedPet === it.id ? 'Dismiss' : 'Summon'}
+                  {s.equippedPet === it.id ? tr('Dismiss') : tr('Summon')}
                 </button>
               )}
               {it.category === 'vehicle' && (
                 <button className="btn" onClick={() => { s.setRiding(!s.riding); s.closePanel(); }}>
-                  {s.riding ? 'Dismount' : 'Ride (F)'}
+                  {s.riding ? tr('Dismount') : tr('Ride (F)')}
                 </button>
               )}
             </div>
@@ -71,7 +72,7 @@ export function InventoryPanel() {
         </div>
       ) : (
         <div className="muted" style={{ padding: 24, textAlign: 'center' }}>
-          Nothing here yet. {tab === 'furniture' ? 'Placed furniture lives in your apartment.' : 'Explore cities and complete quests!'}
+          {tr('Nothing here yet.')} {tab === 'furniture' ? tr('Placed furniture lives in your apartment.') : tr('Explore cities and complete quests!')}
         </div>
       )}
     </Panel>
@@ -88,11 +89,11 @@ export function PassportPanel() {
     <Panel title="SAI Passport" icon="🛂">
       <div className="row" style={{ justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap' }}>
         <div>
-          <div className="muted" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>Region</div>
-          <div style={{ fontSize: 22, fontWeight: 800 }}>South America</div>
+          <div className="muted" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>{tr('Region')}</div>
+          <div style={{ fontSize: 22, fontWeight: 800 }}>{tr('South America')}</div>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <div className="muted" style={{ fontSize: 12 }}>Cities completed</div>
+          <div className="muted" style={{ fontSize: 12 }}>{tr('Cities completed')}</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--gold)' }}>
             {completedCities} / {PORTALS.length}
           </div>
@@ -107,23 +108,23 @@ export function PassportPanel() {
               <img src={cityArtUrl(p.art, p.city)} alt="" style={{ width: 64, height: 80, objectFit: 'cover', borderRadius: 10 }} />
               <div style={{ flex: 1 }}>
                 <div className="row">
-                  <span className="name" style={{ fontSize: 16 }}>{p.name}</span>
-                  {cityAccess(p.city, s.wallet.collections) === 'full' && <span className="badge gold">NFT</span>}
+                  <span className="name" style={{ fontSize: 16 }}>{tr(p.name)}</span>
+                  {cityAccess(p.city, s.wallet.collections) === 'full' && <span className="badge gold">{tr('NFT')}</span>}
                   {open && <span className="badge">Rio Level {cityLevel(s.cityXp[p.city] ?? 0)}</span>}
                 </div>
                 {open ? (
                   <>
                     <div className="desc">
-                      Completed: <b>{pr.percent}%</b> · {pr.questsDone}/{pr.questsTotal} quests · {pr.secrets}/{pr.secretsTotal} secrets · {pr.viewpoints}/
-                      {pr.viewpointsTotal} viewpoints · {pr.fastTravel}/{pr.fastTravelTotal} fast travel
+                      {tr('Completed')}: <b>{pr.percent}%</b> · {tr('quests')} {pr.questsDone}/{pr.questsTotal} · {tr('secrets')} {pr.secrets}/{pr.secretsTotal} ·{' '}
+                      {tr('viewpoints')} {pr.viewpoints}/{pr.viewpointsTotal} · {tr('fast travel')} {pr.fastTravel}/{pr.fastTravelTotal}
                     </div>
                     <Progress value={pr.percent / 100} />
                     <div className="desc" style={{ marginTop: 4 }}>
-                      Stamp needs: story 100% ({pr.storyDone}/{pr.storyTotal}) · exploration 70% · main artifact {pr.artifact ? '✓' : '✗'}
+                      {tr('Stamp needs: story 100% ({a}/{b}) · exploration 70% · main artifact', { a: pr.storyDone, b: pr.storyTotal })} {pr.artifact ? '✓' : '✗'}
                     </div>
                   </>
                 ) : (
-                  <div className="desc">Coming later this season</div>
+                  <div className="desc">{tr('Coming later this season')}</div>
                 )}
               </div>
               <div
@@ -142,7 +143,7 @@ export function PassportPanel() {
                   whiteSpace: 'pre-line',
                 }}
               >
-                {pr.completed ? `${p.name.split(' ')[0].toUpperCase()}\nCOMPLETED` : 'STAMP'}
+                {pr.completed ? `${tr(p.name).split(' ')[0].toUpperCase()}\n${tr('COMPLETED')}` : tr('STAMP')}
               </div>
             </div>
           );
@@ -150,18 +151,21 @@ export function PassportPanel() {
       </div>
       <div className="card" style={{ marginTop: 14 }}>
         <div className="row" style={{ justifyContent: 'space-between' }}>
-          <span className="name">RIO COMMUNITY LEVEL</span>
+          <span className="name">{tr('RIO COMMUNITY LEVEL')}</span>
           <b style={{ color: 'var(--cyan)' }}>{(community * 100).toFixed(1)}%</b>
         </div>
         <Progress value={community} />
         <div className="desc">
-          All explorers together: {(COMMUNITY_BASE + totalOrbs * 5).toLocaleString()} / {COMMUNITY_GOAL.toLocaleString()} Energy collected. At 100% a new
-          district of Rio opens for everyone. Your contribution: {totalOrbs} orbs.
+          {tr('All explorers together: {a} / {b} Energy collected. At 100% a new district of Rio opens for everyone. Your contribution: {n} orbs.', {
+            a: (COMMUNITY_BASE + totalOrbs * 5).toLocaleString(),
+            b: COMMUNITY_GOAL.toLocaleString(),
+            n: totalOrbs,
+          })}
         </div>
       </div>
       <div className="card" style={{ marginTop: 10, opacity: 0.7 }}>
-        <span className="name">🏔️ South America Final Expedition</span>
-        <div className="desc">Unlocks after completing 5 / 5 cities of the region.</div>
+        <span className="name">{tr('🏔️ South America Final Expedition')}</span>
+        <div className="desc">{tr('Unlocks after completing 5 / 5 cities of the region.')}</div>
       </div>
     </Panel>
   );
@@ -175,7 +179,7 @@ export function ProfilePanel() {
     <Panel title="Profile" icon="👤" narrow>
       <div className="row" style={{ gap: 16 }}>
         <div className="avatar" style={{ width: 72, height: 72, fontSize: 22 }}>
-          Sai
+          {tr('Sai')}
         </div>
         <div style={{ flex: 1 }}>
           <input
@@ -186,27 +190,27 @@ export function ProfilePanel() {
             style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid var(--line)', borderRadius: 8, color: 'inherit', padding: '6px 10px', font: 'inherit', fontWeight: 800, fontSize: 18, width: '100%' }}
           />
           <div className="muted" style={{ margin: '6px 0' }}>
-            Level {s.level} · {s.xp}/{xpToNext(s.level)} XP
+            {tr('Level')} {s.level} · {s.xp}/{xpToNext(s.level)} XP
           </div>
           <Progress value={s.xp / xpToNext(s.level)} />
         </div>
       </div>
       <div className="stat-list" style={{ marginTop: 16 }}>
-        <span>SAI Energy</span>
+        <span>{tr('SAI Energy')}</span>
         <b>⚡ {s.saiEnergy}</b>
-        <span>Rio City Level</span>
+        <span>{tr('Rio City Level')}</span>
         <b>{cityLevel(s.cityXp.rio ?? 0)}</b>
-        <span>Quests completed</span>
+        <span>{tr('Quests completed')}</span>
         <b>{Object.values(s.quests).filter((q) => q.status === 'completed').length}</b>
-        <span>Energy Orbs collected</span>
+        <span>{tr('Energy Orbs collected')}</span>
         <b>{s.totalOrbs}</b>
-        <span>Skins</span>
+        <span>{tr('Skins')}</span>
         <b>{s.skins.length}</b>
-        <span>Wallet</span>
-        <b>{s.wallet.address ? shortAddress(s.wallet.address) : 'not connected'}</b>
+        <span>{tr('Wallet')}</span>
+        <b>{s.wallet.address ? shortAddress(s.wallet.address) : tr('not connected')}</b>
       </div>
       <div className="muted" style={{ fontSize: 12 }}>
-        Levels unlock cosmetics, quests, effects and profile badges. Golden Sai unlocks at level 4.
+        {tr('Levels unlock cosmetics, quests, effects and profile badges. Golden Sai unlocks at level 4.')}
       </div>
     </Panel>
   );
@@ -229,8 +233,8 @@ export function SeasonPanel() {
   return (
     <Panel title="Season 1 · South America" icon="🏆">
       <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <div className="muted">Season XP: {totalXp} · ends in {days} days</div>
-        <span className="badge purple">PREMIUM PASS · coming soon</span>
+        <div className="muted">{tr('Season XP: {xp} · ends in {n} days', { xp: totalXp, n: days })}</div>
+        <span className="badge purple">{tr('PREMIUM PASS · coming soon')}</span>
       </div>
       <div style={{ display: 'grid', gap: 8, marginTop: 12 }}>
         {TIERS.map((t) => {
@@ -238,27 +242,27 @@ export function SeasonPanel() {
           const claimed = s.seasonClaimed.includes(t.tier);
           return (
             <div key={t.tier} className="card" style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <b style={{ width: 54 }}>Tier {t.tier}</b>
+              <b style={{ width: 70 }}>{tr('Tier')} {t.tier}</b>
               <span className="muted" style={{ width: 70, fontSize: 12 }}>{t.xp} XP</span>
               <div style={{ flex: 1 }}>
-                <div className="name">Free: {t.freeLabel}</div>
-                <div className="desc">Premium: {t.premium}</div>
+                <div className="name">{tr('Free')}: {tr(t.freeLabel)}</div>
+                <div className="desc">{tr('Premium')}: {tr(t.premium)}</div>
               </div>
               {claimed ? (
-                <span className="badge green">CLAIMED</span>
+                <span className="badge green">{tr('CLAIMED')}</span>
               ) : (
                 <button className="btn primary" disabled={!reached} onClick={() => s.claimSeasonTier(t.tier, t.free)}>
-                  Claim
+                  {tr('Claim')}
                 </button>
               )}
             </div>
           );
         })}
       </div>
-      <h3>Events</h3>
+      <h3>{tr('Events')}</h3>
       <div className="card">
-        <div className="name">🎉 SAI FEST RIO</div>
-        <div className="desc">Music, lights, decorations and limited-time quests across Rio. Starts soon — watch the Event Portal on the Home Planet.</div>
+        <div className="name">{tr('🎉 SAI FEST RIO')}</div>
+        <div className="desc">{tr('Music, lights, decorations and limited-time quests across Rio. Starts soon — watch the Event Portal on the Home Planet.')}</div>
       </div>
     </Panel>
   );

@@ -1,4 +1,5 @@
 import { useFrame } from '@react-three/fiber';
+import { tr } from '../../i18n';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { labelTexture } from '../textures';
@@ -61,7 +62,7 @@ export function Label({
   bg?: string;
   sub?: string;
 }) {
-  const tex = labelTexture(text, { color, bg, sub, w: 512, h: sub ? 160 : 112 });
+  const tex = labelTexture(tr(text), { color, bg, sub: sub ? tr(sub) : undefined, w: 512, h: sub ? 160 : 112 });
   const aspect = sub ? 512 / 160 : 512 / 112;
   return (
     <sprite position={position} scale={[scale * aspect * 0.6, scale * 0.6, 1]}>

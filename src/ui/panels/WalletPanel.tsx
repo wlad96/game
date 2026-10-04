@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { tr } from '../../i18n';
 import { PORTALS } from '../../data/cities';
 import { cityArtUrl } from '../../game/textures';
 import { cityAccess, connectWallet, fetchOwnedCollections, setDemoCollections, shortAddress } from '../../services/nftAccess';
@@ -31,11 +32,11 @@ export function WalletPanel() {
     <Panel title="NFT Gallery · City Access" icon="🖼️">
       <div className="row" style={{ justifyContent: 'space-between', flexWrap: 'wrap', marginBottom: 12 }}>
         <div>
-          <div className="muted" style={{ fontSize: 12 }}>Wallet</div>
+          <div className="muted" style={{ fontSize: 12 }}>{tr('Wallet')}</div>
           <b>{wallet.address ? shortAddress(wallet.address) : 'Not connected'}</b>
         </div>
         {wallet.address ? (
-          <button className="btn" onClick={() => setWallet(null, [])}>Disconnect</button>
+          <button className="btn" onClick={() => setWallet(null, [])}>{tr('Disconnect')}</button>
         ) : (
           <button className="btn primary" disabled={busy} onClick={connect}>{busy ? 'Connecting…' : 'Connect wallet'}</button>
         )}
@@ -47,13 +48,13 @@ export function WalletPanel() {
           return (
             <div key={p.city} className={`card ${access === 'full' ? 'selected' : ''}`}>
               <img src={cityArtUrl(p.art, p.city)} alt="" style={{ width: '100%', borderRadius: 10, filter: access === 'full' ? 'none' : 'grayscale(0.7) brightness(0.7)' }} />
-              <div className="name">{p.name} NFT</div>
+              <div className="name">{tr(p.name)} NFT</div>
               <div>
-                {access === 'full' ? <span className="badge gold">FULL ACCESS</span> : access === 'visitor' ? <span className="badge green">VISITOR</span> : <span className="badge gray">LOCKED</span>}
+                {access === 'full' ? <span className="badge gold">{tr('FULL ACCESS')}</span> : access === 'visitor' ? <span className="badge green">{tr('VISITOR')}</span> : <span className="badge gray">{tr('LOCKED')}</span>}
               </div>
               {wallet.address && (
                 <button className="btn" style={{ fontSize: 12 }} disabled={busy} onClick={() => toggleDemo(id)}>
-                  Demo: {wallet.collections.includes(id) ? 'remove' : 'simulate'} ownership
+                  {wallet.collections.includes(id) ? tr('Demo: remove ownership') : tr('Demo: simulate ownership')}
                 </button>
               )}
             </div>
@@ -61,8 +62,8 @@ export function WalletPanel() {
         })}
       </div>
       <div className="muted" style={{ fontSize: 12, marginTop: 12, lineHeight: 1.5 }}>
-        City NFTs are access passes, not power-ups: full city areas, story branches, exclusive quests, cosmetics, NFT-only events and trophies.
-        Everyone can play the story as a visitor. In this MVP the backend check is mocked — use “simulate ownership” to preview NFT perks.
+        {tr('City NFTs are access passes, not power-ups: full city areas, story branches, exclusive quests, cosmetics, NFT-only events and trophies.')}
+        {tr('Everyone can play the story as a visitor. In this MVP the backend check is mocked — use “simulate ownership” to preview NFT perks.')}
       </div>
     </Panel>
   );

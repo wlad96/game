@@ -1,4 +1,5 @@
 import { useFrame, useThree } from '@react-three/fiber';
+import { tr } from '../i18n';
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { play } from '../audio/sfx';
@@ -174,7 +175,7 @@ export function Player({ spawn, cameraDistance = 7 }: { spawn: Spawn; cameraDist
           game.setRiding(!game.riding);
           play('board');
         } else {
-          game.toast('Get a Hoverboard in the Shop to ride (F)', '🛹');
+          game.toast(tr('Get a Hoverboard in the Shop to ride (F)'), '🛹', 'warn');
         }
       }
       if (input.interact && s.nearest) {
@@ -210,7 +211,7 @@ export function Player({ spawn, cameraDistance = 7 }: { spawn: Spawn; cameraDist
       b.y = s.safe.y + 0.5;
       b.z = s.safe.z;
       b.vx = b.vy = b.vz = 0;
-      game.toast('Whoa! Sai teleported back to safety', '✨');
+      game.toast(tr('Whoa! Sai teleported back to safety'), '✨');
     }
     s.safeT -= dt;
     if (b.grounded && s.safeT <= 0) {

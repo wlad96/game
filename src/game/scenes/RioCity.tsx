@@ -1,4 +1,5 @@
 import { Sky } from '@react-three/drei';
+import { tr } from '../../i18n';
 import { useFrame } from '@react-three/fiber';
 import { Suspense, useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
@@ -298,7 +299,7 @@ function Viewpoint({ id, pos, name }: { id: string; pos: [number, number, number
     if (g.collected[`vp:${id}`]) return;
     g.setFlag(`vpever:${id}`);
     play('collect');
-    g.collect(`vp:${id}`, { xp: 15, toast: `Viewpoint: ${name}`, icon: '📷', event: { type: 'visit', target: 'viewpoint' } });
+    g.collect(`vp:${id}`, { xp: 15, toast: tr('Viewpoint: {name}', { name: tr(name) }), icon: '📷', event: { type: 'visit', target: 'viewpoint' } });
   });
   return (
     <group position={pos}>
@@ -306,7 +307,7 @@ function Viewpoint({ id, pos, name }: { id: string; pos: [number, number, number
         <ringGeometry args={[1.6, 2, 32]} />
         <meshBasicMaterial color={seen ? '#6f7d95' : '#ffd36b'} toneMapped={false} transparent opacity={0.85} />
       </mesh>
-      <Label text={`📷 ${name}`} position={[0, 2.6, 0]} scale={0.6} />
+      <Label text={`📷 ${tr(name)}`} position={[0, 2.6, 0]} scale={0.6} />
     </group>
   );
 }
@@ -432,7 +433,7 @@ export default function RioCity({ spawnId }: { spawnId: string }) {
       g.showDialog(null);
       g.questEvent({ type: 'talk', target: 'technician' });
     } else if (st.status === 'active') {
-      g.showDialog({ name: 'Rio Technician', portrait: '🧑‍🔧', lines: [`Next: ${o?.label ?? ''}.`, 'Use M to open the map — the target is marked.'] });
+      g.showDialog({ name: 'Rio Technician', portrait: '🧑‍🔧', lines: [tr('Next: {task}.', { task: tr(o?.label ?? '') }), 'Use M to open the map — the target is marked.'] });
     } else {
       g.showDialog({
         name: 'Rio Technician',
@@ -449,11 +450,11 @@ export default function RioCity({ spawnId }: { spawnId: string }) {
     const o = activeObjective(g, 'rio_energy_01');
     const target = `beacon${n}`;
     if (g.flags[target]) {
-      g.toast(`Beacon #${n} is online`, '⚡');
+      g.toast(tr('Beacon #{n} is online', { n }), '⚡', 'quest');
       return;
     }
     if (!o) {
-      g.showDialog({ name: `Energy Beacon #${n}`, portrait: '⚡', lines: ['The beacon is offline.', 'Talk to the Rio Technician on Central Square.'] });
+      g.showDialog({ name: tr('Energy Beacon #{n}', { n }), portrait: '⚡', lines: ['The beacon is offline.', 'Talk to the Rio Technician on Central Square.'] });
       return;
     }
     if (o.type === 'reach' && o.target === target) g.questEvent({ type: 'reach', target });
@@ -465,7 +466,7 @@ export default function RioCity({ spawnId }: { spawnId: string }) {
     } else if (now?.type === 'puzzle' && now.target === target) {
       g.openPanel('puzzle', { target, title: 'Energy Network — Beacon #3', size: 4, seed: 7 });
     } else {
-      g.toast(`Restore the beacons in order: ${now?.label ?? ''}`, '⚡');
+      g.toast(tr('Restore the beacons in order: {task}', { task: tr(now?.label ?? '') }), '⚡', 'warn');
     }
   };
   useInteractable({ id: 'beacon1', pos: [-14, 0, -8], radius: 4.5, label: flags.beacon1 ? 'Beacon #1 · Online' : 'Activate Beacon #1' }, beacon(1));
@@ -680,7 +681,7 @@ export default function RioCity({ spawnId }: { spawnId: string }) {
       {/* event zone */}
       <mesh position={[85, 6, 51.2]}>
         <planeGeometry args={[18, 6]} />
-        <meshBasicMaterial map={labelTexture('SAI FEST RIO', { bg: 'rgba(80,20,120,0.92)', color: '#ffd36b', sub: 'COMING SOON', w: 512, h: 192 })} toneMapped={false} side={THREE.DoubleSide} />
+        <meshBasicMaterial map={labelTexture('SAI FEST RIO', { bg: 'rgba(80,20,120,0.92)', color: '#ffd36b', sub: tr('COMING SOON'), w: 512, h: 192 })} toneMapped={false} side={THREE.DoubleSide} />
       </mesh>
 
       {/* carnival plaza */}
