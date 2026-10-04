@@ -1,13 +1,56 @@
-import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as THREE from 'three';
 import { skinById } from '../../data/items';
 import type { AnimSource } from './SaiModel';
 import { paintSai } from './saiColors';
 
 import SAI_GLB_URL from './saiGlbUrl';
-useGLTF.preload(SAI_GLB_URL);
+
+/**
+ * Loads sai.glb once. A `data:` URL (artifact build) is decoded locally because
+ * strict hosts block fetch() of data URLs; a normal URL is fetched.
+ */
+interface SaiCache {
+  promise: Promise<void>;
+  scene?: THREE.Object3D;
+  error?: unknown;
+}
+let cache: SaiCache | null = null;
+function loadSai(): THREE.Object3D {
+  if (!cache) {
+    const c: SaiCache = { promise: Promise.resolve() };
+    c.promise = (async () => {
+        let buf: ArrayBuffer;
+        if (SAI_GLB_URL.startsWith('data:')) {
+          const bin = atob(SAI_GLB_URL.slice(SAI_GLB_URL.indexOf(',') + 1));
+          const bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+          buf = bytes.buffer;
+        } else {
+          const res = await fetch(SAI_GLB_URL);
+          if (!res.ok) throw new Error(`sai.glb: HTTP ${res.status}`);
+          buf = await res.arrayBuffer();
+        }
+        const gltf = await new GLTFLoader().parseAsync(buf, '');
+        c.scene = gltf.scene;
+      })().catch((e) => {
+        c.error = e;
+      });
+    cache = c;
+  }
+  if (cache.error) throw cache.error;
+  if (!cache.scene) throw cache.promise;
+  return cache.scene;
+}
+if (typeof window !== 'undefined') void Promise.resolve().then(() => {
+  try {
+    loadSai();
+  } catch {
+    // preload only
+  }
+});
 
 const HEIGHT = 2.05;
 const damp = (a: number, b: number, k: number, dt: number) => a + (b - a) * (1 - Math.exp(-k * dt));
@@ -18,11 +61,11 @@ const damp = (a: number, b: number, k: number, dt: number) => a + (b - a) * (1 -
  * Once a Mixamo-rigged version arrives, these become real clips.
  */
 export function SaiGlbModel({ skin, source, riding, castShadow = true }: { skin: string; source: () => AnimSource; riding?: boolean; castShadow?: boolean }) {
-  const gltf = useGLTF(SAI_GLB_URL);
+  const scene = loadSai();
   const s = skinById(skin);
   const { geometry, scale, offset } = useMemo(() => {
     let src: THREE.BufferGeometry | null = null;
-    gltf.scene.traverse((o) => {
+    scene.traverse((o) => {
       if (!src && (o as THREE.Mesh).isMesh) src = (o as THREE.Mesh).geometry;
     });
     const geo = paintSai(src!, s);
@@ -30,7 +73,7 @@ export function SaiGlbModel({ skin, source, riding, castShadow = true }: { skin:
     const bb = geo.boundingBox!;
     const k = HEIGHT / (bb.max.y - bb.min.y);
     return { geometry: geo, scale: k, offset: -bb.min.y * k };
-  }, [gltf, s]);
+  }, [scene, s]);
   const material = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
