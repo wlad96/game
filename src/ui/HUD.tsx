@@ -462,7 +462,7 @@ const STEPS: { flag: string; title: string; text: string; icon: string }[] = [
   { flag: 'jumped', icon: '⤴️', title: 'Jump', text: 'Press Space. Press it again in the air for a double jump.' },
   { flag: 'interacted', icon: '✋', title: 'Interact', text: 'When a hint with E appears at the bottom, press E. Try the portal or the Sai Guide robot.' },
   { flag: 'visitedRio', icon: '🌀', title: 'Enter Rio', text: 'At the Rio portal press E and choose ENTER CITY.' },
-  { flag: 'done:rio_energy_01', icon: '⚡', title: 'Restore the Rio energy network', text: 'Talk to the Technician on the square, then follow the goal at the top of the screen.' },
+  { flag: 'done:rio_energy_01', icon: '⚡', title: 'Restore the Rio energy network', text: 'Talk to the Technician by the portal, then follow the goal at the top of the screen.' },
   { flag: 'visitedRoom', icon: '🏠', title: 'Visit your apartment', text: 'Enter the Rio Apartment door near the beach road.' },
 ];
 

@@ -36,6 +36,8 @@ export const player = {
 export const playerCommands: {
   teleport: { x: number; y: number; z: number; yaw?: number } | null;
   emote: AnimState | null;
+  /** Debug / screenshots: fixed camera instead of the follow camera. */
+  camera?: { pos: [number, number, number]; look: [number, number, number] } | null;
 } = { teleport: null, emote: null };
 
 // ───────────────────────── Interactables ─────────────────────────
@@ -122,4 +124,4 @@ export function inRange(p: THREE.Vector3, target: THREE.Vector3, radius: number,
 export const collectibles = new Map<string, THREE.Vector3>();
 
 /** The active 3D camera, so the HTML HUD can project world points to the screen. */
-export const view: { camera: THREE.PerspectiveCamera | null } = { camera: null };
+export const view: { camera: THREE.PerspectiveCamera | null; gl: THREE.WebGLRenderer | null } = { camera: null, gl: null };

@@ -1,7 +1,7 @@
 import { tr } from '../i18n';
 import { useEffect, useRef } from 'react';
 import { player } from '../game/runtime';
-import { poiById, RIO_POIS, RIO_ZONES } from '../game/scenes/rioLayout';
+import { poiById, RIO_POIS, RIO_ZONES, STREET } from '../game/scenes/rioLayout';
 import { activeObjective, useGame } from '../store/gameStore';
 
 const SCALE = 0.75; // px per metre (canvas is 2x)
@@ -25,15 +25,16 @@ export function Minimap() {
         const tz = (z: number) => S / 2 + (z - pz) * k;
         g.fillStyle = '#5e6670';
         g.fillRect(0, 0, S, S);
-        // ocean
-        g.fillStyle = '#2aa3c4';
-        g.fillRect(0, tz(106), S, S);
-        for (const z of RIO_ZONES) {
+        for (const z of [...RIO_ZONES].reverse()) {
           g.fillStyle = z.color;
           g.globalAlpha = 0.8;
           g.fillRect(tx(z.x0), tz(z.z0), (z.x1 - z.x0) * k, (z.z1 - z.z0) * k);
         }
         g.globalAlpha = 1;
+        // ocean (and the bay east of the city)
+        g.fillStyle = '#2aa3c4';
+        g.fillRect(0, tz(STREET.shore), S, S);
+        g.fillRect(tx(162), 0, S, S);
         const st = useGame.getState();
         const tracked = st.trackedQuest ?? 'rio_energy_01';
         const target = activeObjective(st, tracked)?.poi;

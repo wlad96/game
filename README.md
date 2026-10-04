@@ -20,7 +20,7 @@ npm run build      # typecheck + production build в dist/
 | 1. Главная планета | `src/game/scenes/HomePlanet.tsx` | Площадь, Sai Core, 5 порталов (Rio открыт, остальные «скоро»), Quest Terminal, Shop, NFT Gallery, Event Portal, Home Portal, Season Board, NPC-гид, платформы для прыжков |
 | 2. Выбор портала | `src/ui/panels/PortalPanel.tsx` | Список городов слева, справа арт, страна, описание, прогресс, NFT-статус, награды, ENTER CITY |
 | 3. Переход | `src/game/scenes/Warp.tsx` + `TransitionOverlay` в `src/ui/HUD.tsx` | Варп-туннель, Sai летит к городу, прогресс загрузки и подсказки. Пока идёт варп, реально подгружается чанк сцены |
-| 4. Rio | `src/game/scenes/RioCity.tsx`, `rioLayout.ts` | ~300×260 м: Central Square, Market Street, Beach (Copacabana), Favela Hills, Cable Car Station, Mountain Area, Energy Tower, Event Zone, Carnival Plaza (NFT), апартаменты. NPC, орбы, секреты, смотровые точки, fast travel, канатная дорога |
+| 4. Rio | `src/game/scenes/RioCity.tsx`, `rioLayout.ts`, `cityKit.ts`, `RioScenery.tsx`, `RioTraffic.tsx` | Копакабана из моделей Kenney: играбельная полоса ~310 м вдоль Авениды Атлантика (фасады, тротуар, проспект с машинами, набережная с волнами), боковые улицы к площади Энергобашни и Carnival Plaza (NFT), станция канатной дороги с парком на холме, апартаменты. Пляж, океан с лодками, холмы с лесом, Корковаду со статуей Христа, Сахарная Голова и Урка — декорации. NPC, орбы, секреты, смотровые точки, fast travel |
 | 5. Квест | `src/data/quests.ts`, `src/store/questEngine.ts` | «Energy of Rio»: 3 маяка (простой → паркур по крышам → головоломка), трекер в HUD «2 / 3» |
 | 6. Награда | `src/ui/RewardModal.tsx` | Большой экран: энергия, XP, предмет, City Progress, level up, лор |
 | 7. Комната | `src/game/scenes/RioRoom.tsx` | Rio Apartment: Quest Terminal, голографическая карта, NFT-галерея, гардероб, полка трофеев, Artifact Station, Portal Device, слоты мебели |
@@ -38,9 +38,9 @@ npm run build      # typecheck + production build в dist/
 WASD — ходьба · мышь (drag) — камера · колесо — зум · Shift — бег · Space — прыжок / двойной прыжок · Q — рывок · E — взаимодействие · F — hoverboard · M — карта · I — инвентарь · Tab — задания · P — паспорт · C — гардероб · 1–4 — эмоции · Esc — меню.
 
 ### Сюжет MVP
-1. Rio Technician на площади выдаёт квест.
-2. Маяк #1 — рядом на площади.
-3. Маяк #2 — на вершине фавелы, по крышам прыжками (двойной прыжок нужен на двух шагах).
+1. Rio Technician у портала на набережной выдаёт квест.
+2. Маяк #1 — на набережной.
+3. Маяк #2 — на крыше через проспект: киоск → остановка → балкон → крыши (двойной прыжок нужен на нескольких шагах).
 4. Маяк #3 — у станции канатной дороги, нужна головоломка. После неё весь Rio светится.
 5. Награда у техника: +250 энергии, +500 XP, Rio Energy Crystal.
 6. Дома кристалл ставится на полку трофеев → открывается глава 2 «Secret on the Mountain»: парящая тропа с крыши станции на вершину, артефакт, расшифровка на Artifact Station → скин Explorer Sai и лор.
@@ -64,6 +64,7 @@ supabase/schema.sql   таблицы из §52 ТЗ
 
 - Одна активная сцена; при переходе старая размонтируется, а R3F освобождает её ресурсы (§56).
 - Физика — собственный кинематический контроллер на AABB-коллайдерах (`src/game/physics.ts`): шаги, крыши, стены, коллизия камеры. Тесты проверяют, что паркур-маршруты укладываются в высоту и дальность прыжка.
+- Город собран из Kenney City Kit (Commercial, Roads, Suburban), Car Kit, Nature Kit, Watercraft Pack и Mini Characters (CC0). Исходники — в `kenney/`, в игру попадают отобранные и сжатые модели из `public/models/<kit>/`. Дома перекрашены своей палитрой (`public/models/city/Textures/rio-white.png`, `rio-cream.png`). Статичные модели рисуются инстансами (`KitInstances` в `src/game/models/Kit.tsx`): один draw call на модель.
 - Квесты описываются данными (`objectives` с типами `reach / activate / puzzle / collect / visit / talk`), движок — чистый reducer, сюжетная логика в коде не захардкожена.
 
 ## Отклонения от рекомендованного стека и что дальше

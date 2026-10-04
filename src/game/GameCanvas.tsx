@@ -30,7 +30,8 @@ function LookControls() {
   useEffect(() => attachLook(gl.domElement), [gl]);
   useEffect(() => {
     view.camera = camera as THREE.PerspectiveCamera;
-  }, [camera]);
+    view.gl = gl;
+  }, [camera, gl]);
   return null;
 }
 

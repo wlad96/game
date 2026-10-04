@@ -297,6 +297,10 @@ export function Player({ spawn, cameraDistance = 7 }: { spawn: Spawn; cameraDist
     if (d < curDist - 0.5) cur.set(cx, cy, cz); // snap in front of walls
     else cur.set(cur.x + (cx - cur.x) * k, cur.y + (cy - cur.y) * k, cur.z + (cz - cur.z) * k);
     camera.lookAt(tx, ty, tz);
+    if (playerCommands.camera) {
+      camera.position.set(...playerCommands.camera.pos);
+      camera.lookAt(...playerCommands.camera.look);
+    }
 
     // ── interactables & triggers
     let best: string | null = null;

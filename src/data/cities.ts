@@ -12,7 +12,7 @@ export const PORTALS: PortalDef[] = [
     status: 'open',
     tagline: 'City of energy, beaches and hills',
     description:
-      'A stylized, futuristic Rio. The city energy grid has failed — the beacons on the square, the favela rooftops and the cable station are dark.',
+      'A stylized, futuristic Copacabana. The city energy grid has failed — the beacons on the promenade, the rooftops and the cable station are dark.',
     dailyQuests: 2,
     rewards: ['Rio Energy Crystal', 'Rio Decoration', 'Passport Stamp'],
     art: { sky: ['#ffb36b', '#3a7bd5'], ground: '#1f6f78', accent: '#ffd36b', landmark: 'redeemer' },

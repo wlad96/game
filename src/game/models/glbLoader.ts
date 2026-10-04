@@ -7,9 +7,13 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
  * - embedded textures load through <img> instead of fetch(blob:);
  * - `rewrite` maps external texture paths (e.g. Kenney's Textures/colormap.png).
  */
+export interface Gltf {
+  scene: THREE.Object3D;
+  animations: THREE.AnimationClip[];
+}
 interface Entry {
   promise: Promise<void>;
-  scene?: THREE.Object3D;
+  gltf?: Gltf;
   error?: unknown;
 }
 const cache = new Map<string, Entry>();
@@ -28,23 +32,25 @@ async function load(url: string, rewrite?: (u: string) => string) {
   const w = window as unknown as { createImageBitmap?: typeof createImageBitmap };
   const cib = w.createImageBitmap;
   w.createImageBitmap = undefined;
-  let pending: Promise<{ scene: THREE.Group }>;
+  let pending: Promise<Gltf>;
   try {
     const base = url.startsWith('data:') ? '' : url.slice(0, url.lastIndexOf('/') + 1);
     pending = new GLTFLoader(manager).parseAsync(buf, base);
   } finally {
     w.createImageBitmap = cib;
   }
-  return (await pending).scene;
+  const { scene, animations } = await pending;
+  return { scene, animations };
 }
 
-export function loadGlb(url: string, rewrite?: (u: string) => string): THREE.Object3D {
+/** Scene + animation clips (suspends while loading). */
+export function loadGltf(url: string, rewrite?: (u: string) => string): Gltf {
   let e = cache.get(url);
   if (!e) {
     const entry: Entry = { promise: Promise.resolve() };
     entry.promise = load(url, rewrite)
-      .then((s) => {
-        entry.scene = s;
+      .then((g) => {
+        entry.gltf = g;
       })
       .catch((err) => {
         entry.error = err;
@@ -53,8 +59,12 @@ export function loadGlb(url: string, rewrite?: (u: string) => string): THREE.Obj
     e = entry;
   }
   if (e.error) throw e.error;
-  if (!e.scene) throw e.promise;
-  return e.scene;
+  if (!e.gltf) throw e.promise;
+  return e.gltf;
+}
+
+export function loadGlb(url: string, rewrite?: (u: string) => string): THREE.Object3D {
+  return loadGltf(url, rewrite).scene;
 }
 
 export function preloadGlb(url: string, rewrite?: (u: string) => string) {

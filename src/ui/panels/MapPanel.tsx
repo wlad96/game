@@ -3,7 +3,7 @@ import { tr } from '../../i18n';
 import { questById } from '../../data/quests';
 import { player, playerCommands } from '../../game/runtime';
 import { HOME_POIS } from '../../game/scenes/homeLayout';
-import { RIO_BOUNDS, RIO_FAST_TRAVEL_POINTS, RIO_POIS, RIO_ZONES } from '../../game/scenes/rioLayout';
+import { RIO_BOUNDS, RIO_FAST_TRAVEL_POINTS, RIO_POIS, RIO_ZONES, STREET } from '../../game/scenes/rioLayout';
 import { activeObjective, useGame } from '../../store/gameStore';
 import { rewardText } from './QuestPanels';
 import { Panel } from './Panel';
@@ -42,9 +42,9 @@ function RioMap() {
   return (
     <Panel title="Rio de Janeiro — Map" icon="🗺️">
       <div className="map-wrap">
-        <svg className="map-svg" viewBox={`${minX} ${minZ} ${maxX - minX} ${maxZ - minZ + 20}`}>
-          <rect x={minX} y={106} width={maxX - minX} height={30} fill="#2aa3c4" />
-          {RIO_ZONES.map((z) => (
+        <svg className="map-svg" viewBox={`${minX} ${minZ} ${maxX - minX} ${maxZ - minZ + 22}`}>
+          <rect x={minX} y={minZ} width={maxX - minX} height={STREET.north - minZ} fill="#5d8a58" />
+          {[...RIO_ZONES].reverse().map((z) => (
             <g key={z.id}>
               <rect x={z.x0} y={z.z0} width={z.x1 - z.x0} height={z.z1 - z.z0} rx={4} fill={z.color} opacity={0.85} />
               <text
@@ -60,6 +60,7 @@ function RioMap() {
               </text>
             </g>
           ))}
+          <rect x={minX} y={STREET.beach + 12} width={maxX - minX} height={30} fill="#2aa3c4" />
           {RIO_FAST_TRAVEL_POINTS.map((f) => {
             const found = s.fastTravel.includes(f.id);
             return (

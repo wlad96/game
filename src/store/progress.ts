@@ -19,8 +19,8 @@ export interface CityProgress {
 }
 
 export const RIO_SECRETS = ['token1', 'token2', 'token3', 'token4', 'token5'];
-export const RIO_VIEWPOINTS = ['pier', 'favela', 'cable'];
-export const RIO_FAST_TRAVEL = ['plaza', 'beach', 'favela', 'cable', 'apartment'];
+export const RIO_VIEWPOINTS = ['lookout', 'rooftop', 'cable'];
+export const RIO_FAST_TRAVEL = ['promenade', 'leme', 'tower', 'cable', 'apartment'];
 
 interface Input {
   quests: QuestStates;
