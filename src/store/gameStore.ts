@@ -26,7 +26,8 @@ export type PanelId =
   | 'slot'
   | 'upgrade'
   | 'nft'
-  | 'photo';
+  | 'photo'
+  | 'ad';
 
 export type ToastKind = 'info' | 'quest' | 'reward' | 'warn';
 

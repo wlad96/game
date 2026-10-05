@@ -15,6 +15,8 @@ import { blockCollider, Blocks, FollowSun, matFor, setCityGlow, useWorld, type B
 import { Beacon, Label, Orb, QuestMarker, SaiRobot, sharedMaterials as M, Token } from '../models/props';
 import { Portal } from '../models/Portal';
 import { PhotoZone } from '../models/PhotoZone';
+import { AdBoards, adColliders } from '../models/AdBoards';
+import { AD_SLOTS } from './rioAds';
 import { KitInstances, Person, placementCollider } from '../models/Kit';
 import { buildRioBuildings, buildRioScenery, buildRioStreet, CROSSINGS } from './cityKit';
 import { collectibles, useInteractable, useTrigger } from '../runtime';
@@ -254,6 +256,7 @@ export default function RioCity({ spawnId }: { spawnId: string }) {
     for (const s of [-1, 1]) boxes.push(boxAt(PORTAL_POS[0], PORTAL_POS[2] + s * 3.05, 1.3, 1.3, 9)); // arrival portal (faces east)
     boxes.push(boxAt(PORTAL_POS[0], PORTAL_POS[2], 0.4, 5.2, 9.5, 0.5)); // portal surface: keeps the camera out of it
     for (const [x, y, z] of SUMMIT_PATH) boxes.push(boxAt(x, z, 3.4, 3.4, 0.5, y - 0.5));
+    boxes.push(...adColliders(AD_SLOTS));
     return boxes;
   }, [solid, buildings]);
   const bounds = useMemo(() => ({ type: 'rect' as const, ...RIO_BOUNDS }), []);
@@ -509,6 +512,7 @@ export default function RioCity({ spawnId }: { spawnId: string }) {
       {RIO_VIEWPOINTS.map((v) => (
         <Viewpoint key={v.id} {...v} />
       ))}
+      <AdBoards slots={AD_SLOTS} />
       <PhotoZone id="rio-beach" place="Copacabana · Rio de Janeiro" pos={[7.5, 0, 25.5]} bg={-2.53} pitch={0.25} />
       {RIO_FAST_TRAVEL_POINTS.map((f) => (
         <FastTravelPillar key={f.id} {...f} />

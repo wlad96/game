@@ -1840,3 +1840,42 @@ button:focus-visible,
 .nft-arrow:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+/* ── Ad card ──────────────────────────────── */
+.ad-preview {
+  max-width: 100%;
+  max-height: 44vh;
+  margin: 0 auto;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 211, 107, 0.7);
+  display: block;
+}
+.ad-eyebrow {
+  margin-top: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.ad-title {
+  margin: 10px 0 4px;
+  font-size: 20px;
+}
+.ad-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #dde6f5;
+}
+.ad-actions {
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+.ad-actions a.btn {
+  text-decoration: none;
+}
+.ad-foot {
+  font-size: 12px;
+  margin-top: 6px;
+}

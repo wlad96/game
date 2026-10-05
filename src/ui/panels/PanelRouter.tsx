@@ -2,6 +2,7 @@ import { useGame } from '../../store/gameStore';
 import { InventoryPanel, PassportPanel, ProfilePanel, SeasonPanel } from './CollectionPanels';
 import { HelpPanel } from './HelpPanel';
 import { MapPanel } from './MapPanel';
+import { AdPanel } from './AdPanel';
 import { MenuPanel } from './MenuPanel';
 import { NftPanel } from './NftPanel';
 import { PortalPanel } from './PortalPanel';
@@ -47,6 +48,8 @@ export function PanelRouter() {
       return <HelpPanel />;
     case 'nft':
       return <NftPanel />;
+    case 'ad':
+      return <AdPanel />;
     default:
       return null;
   }
