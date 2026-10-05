@@ -18,6 +18,33 @@ interface Props {
 }
 
 /** Large arched city portal (TZ §6). */
+const W = 5.2;
+const H = 6.6;
+/** Picture art is 4:5; the opening shows a slice of it, a little left of centre (city signs sit there). */
+const ART_ASPECT = 0.8;
+const ART_FOCUS = 0.41;
+
+/**
+ * The opening of the portal (a rectangle under a half circle) as one shape, so
+ * the picture covers it once, cropped like CSS `object-fit: cover`.
+ */
+const pictureGeo = (() => {
+  const shape = new THREE.Shape();
+  shape.moveTo(-W / 2, 0);
+  shape.lineTo(W / 2, 0);
+  shape.lineTo(W / 2, H);
+  shape.absarc(0, H, W / 2, 0, Math.PI, false);
+  shape.lineTo(-W / 2, 0);
+  const g = new THREE.ShapeGeometry(shape, 24);
+  const top = H + W / 2;
+  const uSpan = W / top / ART_ASPECT; // part of the picture's width that fits
+  const pos = g.attributes.position;
+  const uv = g.attributes.uv;
+  for (let i = 0; i < pos.count; i++) uv.setXY(i, ART_FOCUS + (pos.getX(i) / W) * uSpan, pos.getY(i) / top);
+  uv.needsUpdate = true;
+  return g;
+})();
+
 export function Portal({ position, rotation = 0, image, locked, title, status, statusColor = '#21c26b', glow = '#59e6ff', scale = 1 }: Props) {
   const swirl = useRef<THREE.Mesh>(null!);
   const ring = useRef<THREE.Mesh>(null!);
@@ -41,8 +68,6 @@ export function Portal({ position, rotation = 0, image, locked, title, status, s
   });
 
   const fill = locked ? '#4a5878' : image ? '#ffffff' : '#2a3a8a';
-  const W = 5.2;
-  const H = 6.6;
   return (
     <group position={position} rotation={[0, rotation, 0]} scale={scale}>
       {/* base */}
@@ -75,17 +100,7 @@ export function Portal({ position, rotation = 0, image, locked, title, status, s
       </mesh>
       {/* inner picture */}
       <group position={[0, 0.5, 0]}>
-        <mesh position={[0, H / 2, 0]}>
-          <planeGeometry args={[W, H]} />
-          <meshBasicMaterial
-            map={image ?? null}
-            color={fill}
-            toneMapped={false}
-            side={THREE.DoubleSide}
-          />
-        </mesh>
-        <mesh position={[0, H, 0]}>
-          <circleGeometry args={[W / 2, 32, 0, Math.PI]} />
+        <mesh geometry={pictureGeo}>
           <meshBasicMaterial map={image ?? null} color={fill} toneMapped={false} side={THREE.DoubleSide} />
         </mesh>
         <mesh ref={swirl} position={[0, H * 0.62, 0.05]} material={swirlMat}>

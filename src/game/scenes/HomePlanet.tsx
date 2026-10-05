@@ -449,5 +449,8 @@ function SpinningStar({ position }: { position: [number, number, number] }) {
 /** Photo spot in front of the Rio portal: the portal (and the sky planet) behind Sai. */
 const RIO_PHOTO = (() => {
   const p = HOME_PORTALS[0];
-  return { pos: [p.x + Math.sin(p.yaw) * 8, 0, p.z + Math.cos(p.yaw) * 8] as [number, number, number], bg: p.yaw + Math.PI };
+  // in front of the portal and a little to the side, so its marker doesn't hide the portal's name plates
+  const x = p.x + Math.sin(p.yaw) * 8 + Math.cos(p.yaw) * 3.5;
+  const z = p.z + Math.cos(p.yaw) * 8 - Math.sin(p.yaw) * 3.5;
+  return { pos: [x, 0, z] as [number, number, number], bg: Math.atan2(p.x - x, p.z - z) };
 })();
