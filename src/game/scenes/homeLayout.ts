@@ -2,6 +2,10 @@ import { PORTALS } from '../../data/cities';
 import type { Spawn } from '../Player';
 
 export const CORE: [number, number] = [0, -6];
+/** Walkable plaza radius (railing), the island rim around it and the monorail ring over the rim. */
+export const PLAZA_R = 45.5;
+export const ISLAND_R = 56;
+export const MONORAIL = { r: 51, y: 6, segments: 64 };
 const ARC_R = 32;
 const ANGLES = [-70, -35, 0, 35, 70];
 

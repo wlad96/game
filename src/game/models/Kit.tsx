@@ -8,11 +8,61 @@ import { loadGltf, loadGlb } from './glbLoader';
 import { kitModelUrl, kitPaletteUrl, type KitId } from './kitUrls';
 
 // City-kit GLBs reference Textures/colormap.png next to them; Rio paints them
-// with a white palette (the other kits embed their own colormap).
+// with a white palette. Platformer pieces get the lavender Sai palette (the
+// other kits embed their own colormap or use plain material colours).
 const cityRewrite = (u: string) => (u.includes('colormap') ? kitPaletteUrl('rio-white') : u);
+const saiRewrite = (u: string) => (u.includes('colormap') ? kitPaletteUrl('sai-platformer') : u);
+const rewriteFor = (kit: KitId) => (kit === 'city' ? cityRewrite : kit === 'platformer' ? saiRewrite : undefined);
 export const kitUrl = (kit: KitId, model: string) => kitModelUrl(kit, model);
-export const loadKit = (kit: KitId, model: string) => loadGlb(kitUrl(kit, model), kit === 'city' ? cityRewrite : undefined);
-const loadKitGltf = (kit: KitId, model: string) => loadGltf(kitUrl(kit, model), kit === 'city' ? cityRewrite : undefined);
+
+/** Space-kit material colours repainted for planet Sai: white + gold hulls, indigo rock, cyan crystals. */
+const SAI_SPACE: Record<string, { color: string; emissive?: string; metalness?: number; roughness?: number; opacity?: number }> = {
+  metalRed: { color: '#f2c14e', metalness: 0.35, roughness: 0.35 },
+  metal: { color: '#f4f5fb', roughness: 0.4 },
+  metalDark: { color: '#c4c6e8', roughness: 0.45 },
+  dark: { color: '#4b4f9a', roughness: 0.5 },
+  _defaultMat: { color: '#9fefff', emissive: '#3fb8d8', roughness: 0.1, opacity: 0.75 },
+  rock: { color: '#5d4ba6', roughness: 0.9 },
+  rockTrack: { color: '#7461c2', roughness: 0.9 },
+  crystal: { color: '#6ff3ff', emissive: '#2ad4ff', roughness: 0.15 },
+};
+function paintSpace(scene: THREE.Object3D) {
+  if (scene.userData.saiPainted) return scene;
+  scene.userData.saiPainted = true;
+  // Space-kit pieces sit off-centre on the kit grid; centre them on x/z, base at y=0
+  const box = new THREE.Box3().setFromObject(scene);
+  const c = box.getCenter(new THREE.Vector3());
+  for (const ch of scene.children) ch.position.add(new THREE.Vector3(-c.x, -box.min.y, -c.z));
+  const done = new Set<THREE.Material>();
+  scene.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    for (const mat of (Array.isArray(m.material) ? m.material : [m.material]) as THREE.MeshStandardMaterial[]) {
+      const p = SAI_SPACE[mat.name];
+      if (!p || done.has(mat)) continue;
+      done.add(mat);
+      mat.color.set(p.color);
+      if (p.emissive) {
+        mat.emissive.set(p.emissive);
+        mat.emissiveIntensity = 0.8;
+      }
+      // glTF defaults metalness to 1, which renders black without an environment map
+      mat.metalness = p.metalness ?? 0.05;
+      if (p.roughness !== undefined) mat.roughness = p.roughness;
+      if (p.opacity !== undefined) {
+        mat.transparent = true;
+        mat.opacity = p.opacity;
+      }
+    }
+  });
+  return scene;
+}
+
+export const loadKit = (kit: KitId, model: string) => {
+  const s = loadGlb(kitUrl(kit, model), rewriteFor(kit));
+  return kit === 'space' ? paintSpace(s) : s;
+};
+const loadKitGltf = (kit: KitId, model: string) => loadGltf(kitUrl(kit, model), rewriteFor(kit));
 
 const palettes = new Map<string, THREE.Texture>();
 function palette(name: string) {
@@ -194,7 +244,11 @@ export function Person({
   pose = 'idle',
   lookAtPlayer,
   rotation = 0,
+  kit = 'people',
+  scale = PERSON_SCALE,
 }: {
+  kit?: KitId;
+  scale?: number;
   model: number | string;
   position: [number, number, number];
   path?: [number, number][];
@@ -204,7 +258,7 @@ export function Person({
   rotation?: number;
 }) {
   const name = typeof model === 'number' ? PEOPLE[model % PEOPLE.length] : model;
-  const gltf = loadKitGltf('people', name);
+  const gltf = loadKitGltf(kit, name);
   const g = useRef<THREE.Group>(null!);
   const st = useRef({ i: 0 });
   const { obj, mixer, actions } = useMemo(() => {
@@ -260,7 +314,7 @@ export function Person({
 
   return (
     <group ref={g} position={position} rotation={[0, rotation, 0]}>
-      <primitive object={obj} scale={PERSON_SCALE} />
+      <primitive object={obj} scale={scale} />
     </group>
   );
 }
