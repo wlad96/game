@@ -26,6 +26,7 @@ export const HOME_SPAWNS: Record<string, Spawn> = {
   start: [0, 0, 30, Math.PI],
   rio: portalSpawn('rio'),
   home: [-20, 0, 18, Math.PI * 0.75],
+  gallery: [-29, 0, 6, Math.PI / 2],
 };
 
 /** Home-plaza points shown on the world map. */

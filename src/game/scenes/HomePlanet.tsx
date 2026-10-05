@@ -3,7 +3,6 @@ import { tr } from '../../i18n';
 import { useFrame } from '@react-three/fiber';
 import { Suspense, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { PORTALS } from '../../data/cities';
 import { CORE, HOME_PORTALS, HOME_SPAWNS, PLAZA_R } from './homeLayout';
 import { Alien, Monorail, SAI, SaiIsland, SaiPlacements, SaiSky, Ships } from './SaiWorld';
 import { KitInstances, KitModel } from '../models/Kit';
@@ -17,7 +16,9 @@ import { FollowSun, useWorld } from '../SceneKit';
 import { Label, SaiRobot, sharedMaterials as M } from '../models/props';
 import { Portal } from '../models/Portal';
 import { useInteractable, useTrigger } from '../runtime';
-import { cityArtTexture, coreTexture, labelTexture, tileTexture } from '../textures';
+import { cityArtTexture, coreTexture, labelTexture, nftPlaceholderCanvas, tileTexture } from '../textures';
+import { NFTS } from '../../data/art';
+import { PhotoZone } from '../models/PhotoZone';
 
 function SaiCore() {
   const globe = useRef<THREE.Mesh>(null!);
@@ -155,8 +156,24 @@ function Kiosk({ position, rotation = 0, title, icon, color }: { position: [numb
   );
 }
 
+/** Entrance to the NFT Gallery hall: a wall showing the first pieces of the collection. */
 function NftGallery() {
-  const owned = useGame((s) => s.wallet.collections);
+  const shown = NFTS.slice(0, 5);
+  const texs = useMemo(
+    () =>
+      shown.map((n) => {
+        if (n.url) {
+          const t = new THREE.TextureLoader().load(n.url);
+          t.colorSpace = THREE.SRGBColorSpace;
+          return t;
+        }
+        const t = new THREE.CanvasTexture(nftPlaceholderCanvas(n.n));
+        t.colorSpace = THREE.SRGBColorSpace;
+        return t;
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
   return (
     <group position={[-34, 0, 6]} rotation={[0, Math.PI / 2, 0]}>
       <mesh position={[0, 2.5, -0.3]} material={M.white} castShadow receiveShadow>
@@ -165,21 +182,18 @@ function NftGallery() {
       <mesh position={[0, 5.05, -0.3]} material={M.gold}>
         <boxGeometry args={[16.2, 0.1, 0.7]} />
       </mesh>
-      {PORTALS.map((p, i) => {
-        const has = cityAccess(p.city, owned) === 'full';
-        return (
-          <group key={p.city} position={[-6 + i * 3, 2.6, 0.02]}>
-            <mesh material={has ? M.gold : M.dark}>
-              <boxGeometry args={[2.4, 3.0, 0.1]} />
-            </mesh>
-            <mesh position={[0, 0, 0.06]}>
-              <planeGeometry args={[2.1, 2.7]} />
-              <meshBasicMaterial map={cityArtTexture(p.art, p.city)} color={has ? '#ffffff' : '#56607a'} toneMapped={false} />
-            </mesh>
-          </group>
-        );
-      })}
-      <Label text="NFT Gallery" position={[0, 6, 0.4]} scale={1} />
+      {texs.map((t, i) => (
+        <group key={i} position={[-6 + i * 3, 2.7, 0.02]}>
+          <mesh material={M.gold}>
+            <boxGeometry args={[2.5, 2.5, 0.1]} />
+          </mesh>
+          <mesh position={[0, 0, 0.06]}>
+            <planeGeometry args={[2.2, 2.2]} />
+            <meshBasicMaterial map={t} toneMapped={false} />
+          </mesh>
+        </group>
+      ))}
+      <Label text="NFT Gallery" position={[0, 6, 0.4]} scale={1} sub={tr('{n} pieces · press E to enter', { n: NFTS.length })} />
     </group>
   );
 }
@@ -251,7 +265,7 @@ export default function HomePlanet({ spawnId }: { spawnId: string }) {
   });
   useInteractable({ id: 'terminal', pos: [-12, 0, 12], radius: 3, label: 'Quest Terminal' }, () => useGame.getState().openPanel('terminal'));
   useInteractable({ id: 'shop', pos: [13, 0, 12], radius: 3, label: 'Shop' }, () => useGame.getState().openPanel('shop'));
-  useInteractable({ id: 'gallery', pos: [-32, 0, 6], radius: 6, label: 'NFT Gallery · Wallet' }, () => useGame.getState().openPanel('wallet'));
+  useInteractable({ id: 'gallery', pos: [-32, 0, 6], radius: 6, label: 'Enter the NFT Gallery' }, () => useGame.getState().goTo('gallery', 'entrance', 'fade'));
   useInteractable({ id: 'season', pos: [24, 0, 24], radius: 4, label: 'Season Board' }, () => useGame.getState().openPanel('season'));
   useInteractable({ id: 'event', pos: [34, 0, 6], radius: 4, label: 'Event Portal: SAI FEST' }, () =>
     useGame.getState().showDialog({
@@ -364,6 +378,8 @@ export default function HomePlanet({ spawnId }: { spawnId: string }) {
         <SpinningStar position={[PLATFORMS[2][0], PLATFORMS[2][1] + 1.3, PLATFORMS[2][2]]} />
       </Suspense>
 
+      <PhotoZone id="hub-core" place="Sai Home Planet" pos={[0, 0, 13]} bg={Math.PI} pitch={0.3} />
+      <PhotoZone id="hub-portal" place="Portal to Rio de Janeiro" pos={RIO_PHOTO.pos} bg={RIO_PHOTO.bg} pitch={0.15} />
       <SaiRobot position={[5, 0, 22]} />
       <Label text="Sai Guide" position={[5, 2.6, 22]} scale={0.7} />
       <SaiRobot position={[-6, 0, 2]} path={[[-6, 2], [6, 2], [10, 16], [-10, 16]]} />
@@ -429,3 +445,9 @@ function SpinningStar({ position }: { position: [number, number, number] }) {
     </group>
   );
 }
+
+/** Photo spot in front of the Rio portal: the portal (and the sky planet) behind Sai. */
+const RIO_PHOTO = (() => {
+  const p = HOME_PORTALS[0];
+  return { pos: [p.x + Math.sin(p.yaw) * 8, 0, p.z + Math.cos(p.yaw) * 8] as [number, number, number], bg: p.yaw + Math.PI };
+})();

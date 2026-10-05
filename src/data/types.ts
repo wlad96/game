@@ -1,7 +1,7 @@
 export type CityId = 'rio' | 'buenos-aires' | 'lima' | 'santiago' | 'bogota';
 
 /** Scenes that can be mounted. Only one is alive at a time (see App.tsx). */
-export type SceneId = 'home' | 'rio' | 'rio-room';
+export type SceneId = 'home' | 'rio' | 'rio-room' | 'gallery';
 
 export type QuestType =
   | 'story'

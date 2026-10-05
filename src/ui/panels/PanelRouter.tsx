@@ -3,6 +3,7 @@ import { InventoryPanel, PassportPanel, ProfilePanel, SeasonPanel } from './Coll
 import { HelpPanel } from './HelpPanel';
 import { MapPanel } from './MapPanel';
 import { MenuPanel } from './MenuPanel';
+import { NftPanel } from './NftPanel';
 import { PortalPanel } from './PortalPanel';
 import { PuzzlePanel } from './PuzzlePanel';
 import { QuestJournal, QuestTerminal } from './QuestPanels';
@@ -44,6 +45,8 @@ export function PanelRouter() {
       return <MenuPanel />;
     case 'help':
       return <HelpPanel />;
+    case 'nft':
+      return <NftPanel />;
     default:
       return null;
   }

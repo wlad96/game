@@ -119,6 +119,14 @@ function KitGroup({ items, shadows }: { items: Placement[]; shadows: boolean }) 
       geo.applyMatrix4(m.matrixWorld);
       let mat = m.material as THREE.MeshStandardMaterial | THREE.MeshStandardMaterial[];
       if (kit === 'nature' || kit === 'roads') mat = Array.isArray(mat) ? mat.map(withNearFade) : withNearFade(mat);
+      // leaf undersides face away from every light; a little self-glow keeps them green, not black
+      if (kit === 'nature') {
+        const glow = (x: THREE.MeshStandardMaterial) => {
+          if (x.name.toLowerCase().includes('leaf')) x.emissive.copy(x.color).multiplyScalar(0.35);
+          return x;
+        };
+        mat = Array.isArray(mat) ? mat.map(glow) : glow(mat);
+      }
       if (pal === 'cream') {
         const swap = (x: THREE.MeshStandardMaterial) => {
           if (!x.map) return x;

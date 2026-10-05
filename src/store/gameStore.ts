@@ -24,7 +24,9 @@ export type PanelId =
   | 'season'
   | 'wallet'
   | 'slot'
-  | 'upgrade';
+  | 'upgrade'
+  | 'nft'
+  | 'photo';
 
 export type ToastKind = 'info' | 'quest' | 'reward' | 'warn';
 

@@ -44,6 +44,8 @@ export function currentGoal(s: GameState): Goal | null {
     return null;
   }
 
+  if (s.scene === 'gallery') return null;
+
   if (s.scene === 'rio-room') {
     if (crystalToPlace) return { eyebrow: tr('Story'), text: tr('Put the Energy Crystal on the Trophy Shelf'), icon: '💎', pos: ROOM.shelf, tone: 'story' };
     if (obj?.target === 'artifact_station') return { eyebrow, text: tr(obj.label), icon: '🔮', pos: ROOM.station, tone };

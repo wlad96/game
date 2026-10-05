@@ -15,6 +15,7 @@ import { Dialog } from './Dialog';
 import { currentGoal, type Goal } from './goal';
 import { Minimap } from './Minimap';
 import { MobileControls } from './MobileControls';
+import { PhotoMode } from './PhotoMode';
 import { PanelRouter } from './panels/PanelRouter';
 import { RewardModal } from './RewardModal';
 
@@ -75,7 +76,7 @@ export function HUD() {
 
   return (
     <div className={`hud ${touch ? 'touch' : ''}`}>
-      {!transition && (
+      {!transition && panel !== 'photo' && (
         <>
           <LocationChip />
           {scene === 'rio' && <Minimap />}
@@ -92,7 +93,7 @@ export function HUD() {
       )}
       <Toasts />
       <Dialog />
-      <PanelRouter />
+      {panel === 'photo' ? <PhotoMode /> : <PanelRouter />}
       <RewardModal />
       <TransitionOverlay />
     </div>
@@ -119,7 +120,9 @@ function LocationChip() {
       ? [tr('Sai Home Planet'), tr('Central Plaza')]
       : scene === 'rio'
         ? [tr('Rio de Janeiro'), zone]
-        : [tr('Rio Apartment'), tr('Your personal residence')];
+        : scene === 'gallery'
+          ? [tr('NFT Gallery'), tr('The Sai collection')]
+          : [tr('Rio Apartment'), tr('Your personal residence')];
   return (
     <div className="loc glass">
       <span className="loc-pin">📍</span>

@@ -14,6 +14,7 @@ import { Pet } from '../Pet';
 import { blockCollider, Blocks, FollowSun, matFor, setCityGlow, useWorld, type BlockDef } from '../SceneKit';
 import { Beacon, Label, Orb, QuestMarker, SaiRobot, sharedMaterials as M, Token } from '../models/props';
 import { Portal } from '../models/Portal';
+import { PhotoZone } from '../models/PhotoZone';
 import { KitInstances, Person, placementCollider } from '../models/Kit';
 import { buildRioBuildings, buildRioScenery, buildRioStreet, CROSSINGS } from './cityKit';
 import { collectibles, useInteractable, useTrigger } from '../runtime';
@@ -508,6 +509,7 @@ export default function RioCity({ spawnId }: { spawnId: string }) {
       {RIO_VIEWPOINTS.map((v) => (
         <Viewpoint key={v.id} {...v} />
       ))}
+      <PhotoZone id="rio-beach" place="Copacabana · Rio de Janeiro" pos={[7.5, 0, 25.5]} bg={-2.53} pitch={0.25} />
       {RIO_FAST_TRAVEL_POINTS.map((f) => (
         <FastTravelPillar key={f.id} {...f} />
       ))}

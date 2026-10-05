@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { CityArt } from '../data/types';
+import { customPortalArt } from '../data/art';
 
 /**
  * Procedural textures drawn on canvases. They stand in for the baked GLB
@@ -425,12 +426,37 @@ export function cityArtCanvas(art: CityArt, key: string): HTMLCanvasElement {
   return c;
 }
 
+/** Draw `img` over the whole canvas, cropped to fill it (CSS `object-fit: cover`). */
+function drawCover(g: CanvasRenderingContext2D, img: HTMLImageElement, w: number, h: number) {
+  const k = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+  const iw = img.naturalWidth * k;
+  const ih = img.naturalHeight * k;
+  g.drawImage(img, (w - iw) / 2, (h - ih) / 2, iw, ih);
+}
+
+/** Portal picture: the uploaded one from art/portals when present, otherwise the drawn city art. */
 export function cityArtTexture(art: CityArt, key: string) {
-  return cached(`art:${key}`, () => toTex(cityArtCanvas(art, key)));
+  return cached(`art:${key}`, () => {
+    const t = toTex(cityArtCanvas(art, key));
+    const custom = customPortalArt(key);
+    if (custom) {
+      const img = new Image();
+      img.onload = () => {
+        const [c, g] = canvas(512, 640);
+        drawCover(g, img, 512, 640);
+        t.image = c;
+        t.needsUpdate = true;
+      };
+      img.src = custom;
+    }
+    return t;
+  });
 }
 
 const urlCache = new Map<string, string>();
 export function cityArtUrl(art: CityArt, key: string) {
+  const custom = customPortalArt(key);
+  if (custom) return custom;
   let u = urlCache.get(key);
   if (!u) {
     u = cityArtCanvas(art, key).toDataURL('image/jpeg', 0.85);
@@ -486,4 +512,39 @@ export function coreTexture() {
     }
     return toTex(c);
   });
+}
+
+/** Stand-in art for gallery frames until the NFT collection is uploaded. */
+export function nftPlaceholderCanvas(n: number) {
+  const key = `nft-ph:${n}`;
+  const hit = artCanvasCache.get(key);
+  if (hit) return hit;
+  const [c, g] = canvas(512, 512);
+  const hues = [265, 190, 320, 40, 220, 150];
+  const h = hues[n % hues.length];
+  const bg = g.createLinearGradient(0, 0, 512, 512);
+  bg.addColorStop(0, `hsl(${h},70%,28%)`);
+  bg.addColorStop(1, `hsl(${(h + 60) % 360},75%,55%)`);
+  g.fillStyle = bg;
+  g.fillRect(0, 0, 512, 512);
+  // a planet with a ring
+  g.fillStyle = `hsl(${(h + 180) % 360},80%,72%)`;
+  g.beginPath();
+  g.arc(256, 236, 110, 0, Math.PI * 2);
+  g.fill();
+  g.strokeStyle = 'rgba(255,240,200,0.85)';
+  g.lineWidth = 10;
+  g.beginPath();
+  g.ellipse(256, 236, 180, 46, -0.35, 0, Math.PI * 2);
+  g.stroke();
+  for (let i = 0; i < 40; i++) {
+    g.fillStyle = `rgba(255,255,255,${0.3 + ((i * 37) % 7) / 10})`;
+    g.fillRect((i * 97) % 512, (i * 61) % 512, 3, 3);
+  }
+  g.fillStyle = '#ffffff';
+  g.textAlign = 'center';
+  g.font = '800 60px "Exo 2", system-ui, sans-serif';
+  g.fillText(`#${String(n).padStart(2, '0')}`, 256, 450);
+  artCanvasCache.set(key, c);
+  return c;
 }

@@ -124,4 +124,21 @@ export function inRange(p: THREE.Vector3, target: THREE.Vector3, radius: number,
 export const collectibles = new Map<string, THREE.Vector3>();
 
 /** The active 3D camera, so the HTML HUD can project world points to the screen. */
-export const view: { camera: THREE.PerspectiveCamera | null; gl: THREE.WebGLRenderer | null } = { camera: null, gl: null };
+export const view: { camera: THREE.PerspectiveCamera | null; gl: THREE.WebGLRenderer | null; scene: THREE.Scene | null } = { camera: null, gl: null, scene: null };
+
+// ───────────────────────── Photo spots ─────────────────────────
+
+/**
+ * A photo zone: Sai stands on `pos` facing the camera; the camera looks along
+ * `bg` (radians, direction of travel (sin, cos)) so the scenery behind Sai fills the frame.
+ */
+export interface PhotoSpot {
+  id: string;
+  /** Caption printed on the photo. */
+  place: string;
+  pos: [number, number, number];
+  bg: number;
+  /** Extra upward tilt (radians) for tall scenery behind Sai, used by the wider framings. */
+  pitch?: number;
+}
+export const photoSpots = new Map<string, PhotoSpot>();

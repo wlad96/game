@@ -47,7 +47,7 @@ export function WalletPanel() {
           const id = `sai-city-${p.city}`;
           return (
             <div key={p.city} className={`card ${access === 'full' ? 'selected' : ''}`}>
-              <img src={cityArtUrl(p.art, p.city)} alt="" style={{ width: '100%', borderRadius: 10, filter: access === 'full' ? 'none' : 'grayscale(0.7) brightness(0.7)' }} />
+              <img src={cityArtUrl(p.art, p.city)} alt="" style={{ width: '100%', aspectRatio: '4 / 5', objectFit: 'cover', borderRadius: 10, filter: access === 'full' ? 'none' : 'grayscale(0.7) brightness(0.7)' }} />
               <div className="name">{tr(p.name)} NFT</div>
               <div>
                 {access === 'full' ? <span className="badge gold">{tr('FULL ACCESS')}</span> : access === 'visitor' ? <span className="badge green">{tr('VISITOR')}</span> : <span className="badge gray">{tr('LOCKED')}</span>}

@@ -15,23 +15,27 @@ export const sceneLoaders: Record<SceneId, () => Promise<{ default: React.Compon
   home: () => import('./scenes/HomePlanet'),
   rio: () => import('./scenes/RioCity'),
   'rio-room': () => import('./scenes/RioRoom'),
+  gallery: () => import('./scenes/GalleryHall'),
 };
 
 const Scenes: Record<SceneId, React.LazyExoticComponent<React.ComponentType<{ spawnId: string }>>> = {
   home: lazy(sceneLoaders.home),
   rio: lazy(sceneLoaders.rio),
   'rio-room': lazy(sceneLoaders['rio-room']),
+  gallery: lazy(sceneLoaders.gallery),
 };
 const Warp = lazy(() => import('./scenes/Warp'));
 
 function LookControls() {
   const gl = useThree((s) => s.gl);
   const camera = useThree((s) => s.camera);
+  const scene = useThree((s) => s.scene);
   useEffect(() => attachLook(gl.domElement), [gl]);
   useEffect(() => {
     view.camera = camera as THREE.PerspectiveCamera;
     view.gl = gl;
-  }, [camera, gl]);
+    view.scene = scene;
+  }, [camera, gl, scene]);
   return null;
 }
 
