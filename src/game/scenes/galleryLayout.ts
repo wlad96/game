@@ -31,5 +31,5 @@ export const GALLERY = galleryLayout(NFTS.length);
 export const GALLERY_PHOTO: [number, number, number] = [0, 0, 1.5];
 
 export const GALLERY_SPAWNS: Record<string, Spawn> = {
-  entrance: [0, 0, GALLERY.R - 4, Math.PI],
+  entrance: [0, 0, GALLERY.R - 9, Math.PI],
 };
