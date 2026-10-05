@@ -111,12 +111,19 @@ export const SECRET_ROOF: BlockDef = { x: 57.5, z: -25.2, w: 3, d: 2.6, h: 17.4,
 
 export const STATION: BlockDef = { x: 138, z: -40, w: 18, d: 14, h: 8, color: '#e8eef5', kind: 'facadeLit', roof: '#9fb6c9' };
 /** Stairs up the west side of the station. */
-export const STATION_STAIRS: BlockDef[] = Array.from({ length: 20 }, (_, i) => ({
-  x: 120.45 + i * 0.9,
-  z: -43,
-  w: 0.92,
+/**
+ * Stairs along the station's street side, rising eastwards to roof height; the
+ * top step sits right next to the roof edge. Each rise is below the physics step height.
+ */
+export const STAIR_RISE = 0.4;
+const STAIR_RUN = 0.9;
+const STAIR_COUNT = Math.ceil(STATION.h / STAIR_RISE);
+export const STATION_STAIRS: BlockDef[] = Array.from({ length: STAIR_COUNT }, (_, i) => ({
+  x: STATION.x - STATION.w / 2 + STAIR_RUN * (i + 0.5),
+  z: STATION.z + STATION.d / 2 + 2,
+  w: STAIR_RUN + 0.02,
   d: 4,
-  h: 0.4 * (i + 1),
+  h: Math.min(STATION.h, STAIR_RISE * (i + 1)),
   color: '#cfd8e3',
 }));
 

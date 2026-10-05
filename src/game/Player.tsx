@@ -58,6 +58,9 @@ export function Player({ spawn, cameraDistance = 7 }: { spawn: Spawn; cameraDist
     inside: new Set<string>(),
     nearest: null as string | null,
     airTime: 0,
+    camOff: new THREE.Vector3(),
+    camReady: false,
+    camY: null as number | null,
   });
   const animSrc = useRef<AnimSource>({ anim: 'idle', animTime: 0, speed: 0 });
 
@@ -280,22 +283,30 @@ export function Player({ spawn, cameraDistance = 7 }: { spawn: Spawn; cameraDist
     input.lookX = input.lookY = input.zoom = 0;
     player.camYaw = s.camYaw;
 
+    // Follow camera: it moves rigidly with Sai and only its offset (orbit and
+    // zoom) is smoothed, so the view doesn't lag and catch up at speed.
+    // Small step-ups (stairs, kerbs) are eased on the vertical axis only.
+    s.camY = s.camY === null || Math.abs(b.y + 1.5 - s.camY) > 3 ? b.y + 1.5 : damp(s.camY, b.y + 1.5, 18, dt);
     const tx = b.x;
-    const ty = b.y + 1.5;
+    const ty = s.camY;
     const tz = b.z;
     const dx = -Math.sin(s.camYaw) * Math.cos(s.camPitch);
     const dy = Math.sin(s.camPitch);
     const dz = -Math.cos(s.camYaw) * Math.cos(s.camPitch);
     const hit = raycastWorld(world, tx, ty, tz, dx, dy, dz, s.dist);
     const d = Math.max(1.2, hit - 0.35);
-    const cx = tx + dx * d;
-    const cy = Math.max(ty - 1.3, ty + dy * d);
-    const cz = tz + dz * d;
+    const ox = dx * d;
+    const oy = Math.max(-1.3, dy * d);
+    const oz = dz * d;
+    const off = s.camOff;
+    if (!s.camReady) {
+      off.set(ox, oy, oz);
+      s.camReady = true;
+    }
     const k = 1 - Math.exp(-14 * dt);
-    const cur = camera.position;
-    const curDist = Math.hypot(cur.x - tx, cur.y - ty, cur.z - tz);
-    if (d < curDist - 0.5) cur.set(cx, cy, cz); // snap in front of walls
-    else cur.set(cur.x + (cx - cur.x) * k, cur.y + (cy - cur.y) * k, cur.z + (cz - cur.z) * k);
+    if (d < off.length() - 0.3) off.set(ox, oy, oz); // snap in front of walls
+    else off.set(off.x + (ox - off.x) * k, off.y + (oy - off.y) * k, off.z + (oz - off.z) * k);
+    camera.position.set(tx + off.x, ty + off.y, tz + off.z);
     camera.lookAt(tx, ty, tz);
     if (playerCommands.camera) {
       camera.position.set(...playerCommands.camera.pos);

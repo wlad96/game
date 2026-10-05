@@ -1,3 +1,4 @@
+import { STEP_HEIGHT } from '../physics';
 import { describe, expect, it } from 'vitest';
 import { buildRioBuildings, footprint, KIT, S } from './cityKit';
 import {
@@ -13,6 +14,7 @@ import {
   ROUTE_ORDER,
   SECRET_ROOF,
   STATION,
+  STATION_STAIRS,
   STREET,
   SUMMIT,
   SUMMIT_PATH,
@@ -118,5 +120,22 @@ describe('city layout', () => {
     for (const [x, , z] of RIO_ORBS) expect(inside(x, z), `orb ${x},${z}`).toBe(true);
     for (const t of RIO_TOKENS) expect(inside(t.pos[0], t.pos[2]), t.id).toBe(true);
     for (const f of RIO_FAST_TRAVEL_POINTS) expect(inside(f.x, f.z), f.id).toBe(true);
+  });
+
+  it('station stairs climb step by step onto the roof', () => {
+    const x0 = STATION.x - STATION.w / 2;
+    const x1 = STATION.x + STATION.w / 2;
+    const zEdge = STATION.z + STATION.d / 2;
+    let top = 0;
+    for (const s of STATION_STAIRS) {
+      expect(s.h - top).toBeLessThanOrEqual(STEP_HEIGHT);
+      top = s.h;
+      // outside the station block, touching its street-side face
+      expect(s.z - s.d / 2).toBeGreaterThanOrEqual(zEdge - 0.01);
+      expect(s.z - s.d / 2).toBeLessThan(zEdge + 0.1);
+      expect(s.x).toBeGreaterThan(x0);
+      expect(s.x).toBeLessThan(x1);
+    }
+    expect(top).toBe(STATION.h);
   });
 });
