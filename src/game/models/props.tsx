@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { tr } from '../../i18n';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { labelTexture } from '../textures';
+import { labelTexture, plateTexture } from '../textures';
 import { player } from '../runtime';
 
 const damp = (a: number, b: number, k: number, dt: number) => a + (b - a) * (1 - Math.exp(-k * dt));
@@ -52,7 +52,7 @@ export function Label({
   position,
   scale = 1,
   color = '#ffffff',
-  bg = 'rgba(8,16,40,0.65)',
+  bg,
   sub,
 }: {
   text: string;
@@ -62,11 +62,12 @@ export function Label({
   bg?: string;
   sub?: string;
 }) {
-  const tex = labelTexture(tr(text), { color, bg, sub: sub ? tr(sub) : undefined, w: 512, h: sub ? 160 : 112 });
-  const aspect = sub ? 512 / 160 : 512 / 112;
+  const { tex, aspect } = plateTexture(tr(text), { color, bg, sub: sub ? tr(sub) : undefined, rim: bg ? 'rgba(255,255,255,0.85)' : undefined });
+  const h = scale * (sub ? 1.05 : 0.7);
+  // not tone-mapped or fogged: plates must stay crisp and bright over any background
   return (
-    <sprite position={position} scale={[scale * aspect * 0.6, scale * 0.6, 1]}>
-      <spriteMaterial map={tex} transparent depthWrite={false} />
+    <sprite position={position} scale={[h * aspect, h, 1]} renderOrder={5}>
+      <spriteMaterial map={tex} transparent depthWrite={false} toneMapped={false} fog={false} />
     </sprite>
   );
 }

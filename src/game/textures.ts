@@ -96,6 +96,47 @@ export function labelTexture(
   });
 }
 
+/**
+ * A name plate sized to its text (so long Russian labels are not clipped):
+ * dark rounded plate, thin cyan rim, bright text. Returns the texture and its
+ * width / height ratio.
+ */
+export function plateTexture(text: string, opts: { color?: string; bg?: string; sub?: string; rim?: string } = {}) {
+  const key = `plate:${text}:${JSON.stringify(opts)}`;
+  const h = opts.sub ? 168 : 112;
+  const font = `800 ${opts.sub ? 64 : 60}px "Exo 2", system-ui, sans-serif`;
+  const subFont = `600 38px "Exo 2", system-ui, sans-serif`;
+  const [, m] = canvas(8, 8);
+  m.font = font;
+  let tw = m.measureText(text).width;
+  if (opts.sub) {
+    m.font = subFont;
+    tw = Math.max(tw, m.measureText(opts.sub).width);
+  }
+  const w = Math.min(2048, Math.max(h * 1.4, Math.ceil(tw + h * 0.7)));
+  const tex = cached(key, () => {
+    const [c, g] = canvas(w, h);
+    g.fillStyle = opts.bg ?? 'rgba(8,16,40,0.9)';
+    roundRect(g, 4, 4, w - 8, h - 8, (h - 8) / 2);
+    g.fill();
+    g.lineWidth = 4;
+    g.strokeStyle = opts.rim ?? 'rgba(94,231,255,0.75)';
+    g.stroke();
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.font = font;
+    g.fillStyle = opts.color ?? '#ffffff';
+    g.fillText(text, w / 2, opts.sub ? h * 0.38 : h / 2 + 2);
+    if (opts.sub) {
+      g.font = subFont;
+      g.fillStyle = '#d6ecff';
+      g.fillText(opts.sub, w / 2, h * 0.74);
+    }
+    return toTex(c);
+  });
+  return { tex, aspect: w / h };
+}
+
 function roundRect(g: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   g.beginPath();
   g.moveTo(x + r, y);
