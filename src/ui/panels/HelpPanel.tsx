@@ -10,7 +10,7 @@ const GROUPS: { title: string; rows: [string[], string][] }[] = [
       [['Space'], 'Jump'],
       [['Space', 'Space'], 'Double jump (in the air)'],
       [['Q'], 'Dash forward'],
-      [['F'], 'Hoverboard on / off'],
+      [['F'], 'Skateboard on / off'],
     ],
   },
   {

@@ -178,7 +178,7 @@ export function Player({ spawn, cameraDistance = 7 }: { spawn: Spawn; cameraDist
           game.setRiding(!game.riding);
           play('board');
         } else {
-          game.toast(tr('Get a Hoverboard in the Shop to ride (F)'), '🛹', 'warn');
+          game.toast(tr('Get a Skateboard in the Shop to ride (F)'), '🛹', 'warn');
         }
       }
       if (input.interact && s.nearest) {

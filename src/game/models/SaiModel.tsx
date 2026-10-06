@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef, type RefObject } from 'react';
 import * as THREE from 'three';
+import { DECK_TOP, Skateboard } from './Skateboard';
 import { skinById } from '../../data/items';
 import type { AnimState } from '../runtime';
 import { knitTexture, labelTexture } from '../textures';
@@ -57,8 +58,6 @@ export function SaiModel({ skin, source, riding, castShadow = true }: Props) {
         transparent: true,
         depthWrite: false,
       }),
-      board: new THREE.MeshStandardMaterial({ color: '#1b2236', metalness: 0.6, roughness: 0.3 }),
-      boardGlow: new THREE.MeshBasicMaterial({ color: '#3fe0ff', toneMapped: false }),
     };
   }, [s]);
 
@@ -79,7 +78,7 @@ export function SaiModel({ skin, source, riding, castShadow = true }: Props) {
     const { bodyY, lean, spin, squash, aL, aR, aLz, aRz, lL, lR, headTilt } = computePose(anim, animTime, speed, t, dt, phase);
 
     const k = 18;
-    body.current.position.y = damp(body.current.position.y, bodyY + (riding ? 0.32 : 0), k, dt);
+    body.current.position.y = damp(body.current.position.y, bodyY + (riding ? DECK_TOP : 0), k, dt);
     body.current.rotation.x = damp(body.current.rotation.x, lean, 10, dt);
     body.current.scale.y = damp(body.current.scale.y, squash, 25, dt);
     body.current.scale.x = body.current.scale.z = 1 + (1 - body.current.scale.y) * 0.5;
@@ -170,16 +169,7 @@ export function SaiModel({ skin, source, riding, castShadow = true }: Props) {
           </group>
         </group>
       </group>
-      {riding && (
-        <group position={[0, 0.18, 0]}>
-          <mesh material={mats.board} castShadow={sh}>
-            <boxGeometry args={[0.7, 0.08, 1.5]} />
-          </mesh>
-          <mesh position={[0, -0.06, 0]} material={mats.boardGlow}>
-            <boxGeometry args={[0.5, 0.03, 1.3]} />
-          </mesh>
-        </group>
-      )}
+      {riding && <Skateboard speed={() => source().speed} castShadow={sh} />}
     </group>
   );
 }

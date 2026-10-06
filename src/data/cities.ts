@@ -56,7 +56,7 @@ export const PORTALS: PortalDef[] = [
     tagline: 'Skyline under the Andes',
     description: 'Opens later in the South America season.',
     dailyQuests: 0,
-    rewards: ['Andes Hoverboard Skin'],
+    rewards: ['Andes Skateboard Skin'],
     art: { sky: ['#ffc6a8', '#4f6fb8'], ground: '#40506a', accent: '#c6e4ff', landmark: 'towers' },
   },
   {

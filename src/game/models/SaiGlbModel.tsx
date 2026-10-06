@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
+import { DECK_TOP, Skateboard } from './Skateboard';
 import { skinById } from '../../data/items';
 import type { AnimSource } from './SaiModel';
 import { normaliseGeometry, RIG_HEIGHT, rigSai } from './autoRig';
@@ -64,8 +65,6 @@ export function SaiGlbModel({ skin, source, riding, castShadow = true }: { skin:
     return r;
   }, [scene, s, castShadow]);
   const scale = HEIGHT / RIG_HEIGHT;
-  const boardMat = useMemo(() => new THREE.MeshStandardMaterial({ color: '#1b2236', metalness: 0.6, roughness: 0.3 }), []);
-  const glowMat = useMemo(() => new THREE.MeshBasicMaterial({ color: '#3fe0ff', toneMapped: false }), []);
 
   const pivot = useRef<THREE.Group>(null!);
   const phase = useRef(0);
@@ -85,7 +84,7 @@ export function SaiGlbModel({ skin, source, riding, castShadow = true }: { skin:
     pose.aRz = clampZ(pose.aRz);
     const k = 18;
     const p = pivot.current;
-    p.position.y = damp(p.position.y, HEIGHT / 2 + (riding ? 0.3 : 0), k, dt);
+    p.position.y = damp(p.position.y, HEIGHT / 2 + (riding ? DECK_TOP : 0), k, dt);
     p.rotation.x = pose.spin;
     b.body.position.y = damp(b.body.position.y, restBodyY + pose.bodyY / scale, k, dt);
     b.body.rotation.x = damp(b.body.rotation.x, pose.lean, 10, dt);
@@ -107,16 +106,7 @@ export function SaiGlbModel({ skin, source, riding, castShadow = true }: { skin:
           <primitive object={rig.mesh} />
         </group>
       </group>
-      {riding && (
-        <group position={[0, 0.18, 0]}>
-          <mesh material={boardMat} castShadow={castShadow}>
-            <boxGeometry args={[0.7, 0.08, 1.5]} />
-          </mesh>
-          <mesh position={[0, -0.06, 0]} material={glowMat}>
-            <boxGeometry args={[0.5, 0.03, 1.3]} />
-          </mesh>
-        </group>
-      )}
+      {riding && <Skateboard speed={() => source().speed} castShadow={castShadow} />}
     </group>
   );
 }

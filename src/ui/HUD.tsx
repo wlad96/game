@@ -437,7 +437,7 @@ function hintsFor(s: GameState): Hint[] {
   }
   if (goalLabel === 'beacon2' || goalLabel === 'summit' || learning) out.push({ keys: ['Space', '×2'], text: tr('double jump') });
   if (goalLabel === 'beacon2' || goalLabel === 'summit') out.push({ keys: ['Shift'], text: tr('run') }, { keys: ['Q'], text: tr('dash') });
-  if ((s.inventory.hoverboard ?? 0) > 0 && s.scene === 'rio') out.push({ keys: ['F'], text: s.riding ? tr('get off the board') : tr('hoverboard') });
+  if ((s.inventory.hoverboard ?? 0) > 0 && s.scene === 'rio') out.push({ keys: ['F'], text: s.riding ? tr('get off the board') : tr('skateboard') });
   if (s.scene !== 'home' || s.flags.visitedRio) out.push({ keys: ['M'], text: tr('map') });
   out.push({ keys: ['H'], text: tr('all controls') });
   return out;

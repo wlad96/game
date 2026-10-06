@@ -54,7 +54,7 @@ export const ITEMS: ItemDef[] = [
   { id: 'pet_drone', name: 'Mini Drone', category: 'pet', icon: '🛸', rarity: 'rare', price: 250, description: 'Follows Sai and beeps when an Energy Orb is nearby.' },
   { id: 'pet_orb', name: 'Energy Orb', category: 'pet', icon: '🔵', rarity: 'common', price: 150, description: 'A friendly ball of pure energy.' },
   // Vehicles
-  { id: 'hoverboard', name: 'Hoverboard', category: 'vehicle', icon: '🛹', rarity: 'rare', price: 400, description: 'Press F to ride. Faster travel through the city.' },
+  { id: 'hoverboard', name: 'Skateboard', category: 'vehicle', icon: '🛹', rarity: 'rare', price: 400, description: 'Press F to ride. Faster travel through the city.' },
 ];
 
 export const itemById = (id: string) => ITEMS.find((i) => i.id === id);
